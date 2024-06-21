@@ -1,33 +1,60 @@
 package com.nnk.springboot.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "bidlist")
+@Table(name = "Bidlist")
 public class BidList {
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "BidListId")
     private int id;
-    public BidList(String accountTest, String typeTest, double v) {
 
+    @NotNull(message = "Account is mandatory")
+    @NotBlank(message = "Account is mandatory")
+    @NotEmpty(message = "Account is mandatory")
+    private String account;
+
+    @NotNull(message = "Type is mandatory")
+    @NotBlank(message = "Type is mandatory")
+    @NotEmpty(message = "Type is mandatory")
+    private String type;
+
+    private Double bidQuantity;
+    private Double askQuantity;
+    private Double bid;
+    private Double ask;
+    private String benchmark;
+    private Timestamp bidListDate;
+    private String commentary;
+    private String security;
+    private String status;
+    private String trader;
+    private String book;
+    private String creationName;
+    private Timestamp creationDate;
+    private String revisionName;
+    private Timestamp revisionDate;
+    private String dealName;
+    private String dealType;
+    private String sourceListId;
+    private String side;
+
+    public BidList(String account, String type, double bidQuantity) {
+        this.account = account;
+        this.type = type;
+        this.bidQuantity = bidQuantity;
     }
 
-    public Integer getBidListId() {
-        return null;
+    public BidList() {
     }
-
-    public double getBidQuantity() {
-        return 0;
-    }
-
-    public void setBidQuantity(double v) {
-
-    }
-    // TODO: Map columns in data table BIDLIST with corresponding java fields
 }

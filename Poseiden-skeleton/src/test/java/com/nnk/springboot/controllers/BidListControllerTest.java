@@ -2,6 +2,7 @@ package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.services.IBidService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -175,7 +176,7 @@ public class BidListControllerTest {
     @DisplayName("Given there's no user with the id, then redirect to list")
     @WithMockUser(roles = "USER")
     public void deleteBidFailsTest() throws Exception {
-        doThrow(new RuntimeException()).when(bidService).deleteBid(1);
+        doThrow(new EntityNotFoundException()).when(bidService).deleteBid(1);
 
         mockMvc.perform(get("/bidList/delete/{id}", 1)
                         .with(csrf()))

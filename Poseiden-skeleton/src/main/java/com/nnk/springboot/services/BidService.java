@@ -2,6 +2,7 @@ package com.nnk.springboot.services;
 
 import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.repositories.BidListRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ public class BidService implements IBidService {
 
     @Override
     public BidList updateBid(Integer id, BidList bidList) {
-        BidList bid = repository.findById(id).orElseThrow(RuntimeException::new);
+        BidList bid = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         bid.setAccount(bidList.getAccount());
         bid.setType(bidList.getType());
         bid.setBidQuantity(bidList.getBidQuantity());
@@ -40,7 +41,7 @@ public class BidService implements IBidService {
 
     @Override
     public void deleteBid(int id) {
-        BidList bid = repository.findById(id).orElseThrow(RuntimeException::new);
+        BidList bid = repository.findById(id).orElseThrow(EntityNotFoundException::new);
         repository.delete(bid);
     }
 }

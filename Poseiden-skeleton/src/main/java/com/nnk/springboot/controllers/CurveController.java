@@ -2,6 +2,7 @@ package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.CurvePoint;
 import com.nnk.springboot.services.ICurvePointService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class CurveController {
             CurvePoint curvePoint = curveService.getCurvePointById(id);
             model.addAttribute("curvePoint", curvePoint);
             return "curvePoint/update";
-        } catch (RuntimeException exception) {
+        } catch (EntityNotFoundException exception) {
             logger.error(exception.getMessage());
             return "curvePoint/list";
         }
@@ -81,7 +82,7 @@ public class CurveController {
         try {
             curveService.deleteCurvePoint(id);
             logger.info("Deleted Curve point id: " + id);
-        } catch (RuntimeException exception) {
+        } catch (EntityNotFoundException exception) {
             logger.error("Failed to delete curve point id: " + id + " " + exception.getMessage());
         }
         return "redirect:/curvePoint/list";

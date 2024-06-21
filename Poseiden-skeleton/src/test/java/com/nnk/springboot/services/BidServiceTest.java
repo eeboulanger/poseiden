@@ -2,6 +2,7 @@ package com.nnk.springboot.services;
 
 import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.repositories.BidListRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -65,7 +66,7 @@ public class BidServiceTest {
         BidList bidDto = new BidList("account", "type", 20);
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.updateBid(1, bidDto));
+        assertThrows(EntityNotFoundException.class, () -> service.updateBid(1, bidDto));
 
         verify(repository, times(1)).findById(1);
     }
@@ -85,7 +86,7 @@ public class BidServiceTest {
     public void givenNoBidWithId_whenDeleteBid_thenThrowException() {
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.deleteBid(1));
+        assertThrows(EntityNotFoundException.class, () -> service.deleteBid(1));
 
         verify(repository, times(1)).findById(1);
     }

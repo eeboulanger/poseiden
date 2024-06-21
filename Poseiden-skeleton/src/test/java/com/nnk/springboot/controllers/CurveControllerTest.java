@@ -2,6 +2,7 @@ package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.CurvePoint;
 import com.nnk.springboot.services.ICurvePointService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -140,7 +141,7 @@ public class CurveControllerTest {
     @Test
     @DisplayName("Given curve point id doesn't exists, then don't delete and redirect to list")
     public void deleteCurvePointFailsTest() throws Exception {
-        doThrow(new RuntimeException()).when(curvePointService).deleteCurvePoint(1);
+        doThrow(new EntityNotFoundException()).when(curvePointService).deleteCurvePoint(1);
 
         mockMvc.perform(get("/curvePoint/delete/{id}", 1)
                         .with(csrf()))

@@ -2,6 +2,7 @@ package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.services.IBidService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class BidListController {
             return "/bidList/update";
         } else {
             bidService.updateBid(id, bidList);
-            logger.info("Updated bid: " + bidList);
+            logger.info("Updated bid: " + id);
         }
         return "redirect:/bidList/list";
     }
@@ -79,7 +80,7 @@ public class BidListController {
     public String deleteBid(@PathVariable("id") Integer id, Model model) {
         try {
             bidService.deleteBid(id);
-        } catch (RuntimeException e) {
+        } catch (EntityNotFoundException e) {
             logger.error("Failed to delete bid with id: " + id + ". Bid not found in database");
         }
         return "redirect:/bidList/list";

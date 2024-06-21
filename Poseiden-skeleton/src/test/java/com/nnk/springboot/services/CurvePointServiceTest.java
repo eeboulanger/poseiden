@@ -2,6 +2,7 @@ package com.nnk.springboot.services;
 
 import com.nnk.springboot.domain.CurvePoint;
 import com.nnk.springboot.repositories.CurvePointRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,7 +92,7 @@ public class CurvePointServiceTest {
         CurvePoint dto = new CurvePoint((byte) 11, 12d, 13d);
         when(curvePointRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> curvePointService.updateCurvePoint(1, dto));
+        assertThrows(EntityNotFoundException.class, () -> curvePointService.updateCurvePoint(1, dto));
 
         verify(curvePointRepository, times(1)).findById(1);
         verify(curvePointRepository, never()).save(curvePoint);
@@ -110,7 +111,7 @@ public class CurvePointServiceTest {
     public void givenNoCurvePointWithId_whenDelete_thenThrowException() {
         when(curvePointRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> curvePointService.deleteCurvePoint(1));
+        assertThrows(EntityNotFoundException.class, () -> curvePointService.deleteCurvePoint(1));
 
         verify(curvePointRepository, times(1)).findById(1);
         verify(curvePointRepository, never()).delete(curvePoint);

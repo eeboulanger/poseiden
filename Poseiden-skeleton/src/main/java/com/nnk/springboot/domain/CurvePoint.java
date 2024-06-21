@@ -1,34 +1,36 @@
 package com.nnk.springboot.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import org.hibernate.validator.constraints.Length;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 
 @Entity
-@Table(name = "curvepoint")
+@Getter
+@Setter
+@Table(name = "CurvePoint")
 public class CurvePoint {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    public CurvePoint(int i, double v, double v1) {
+    @NotNull(message = "must not be null")
+    private Byte curveId;
+    private Timestamp asOfDate;
+    private Double term;
+    @Column(name = "`value`") //Reserved word
+    private Double value;
+    private Timestamp creationDate;
 
+    public CurvePoint() {
     }
 
-    public Integer getId() {
-        return null;
+    public CurvePoint(Byte curveId, Double term, Double value) {
+        this.curveId = curveId;
+        this.term = term;
+        this.value = value;
     }
-
-    public int getCurveId() {
-        return 0;
-    }
-
-    public void setCurveId(int i) {
-
-    }
-    // TODO: Map columns in data table CURVEPOINT with corresponding java fields
 }

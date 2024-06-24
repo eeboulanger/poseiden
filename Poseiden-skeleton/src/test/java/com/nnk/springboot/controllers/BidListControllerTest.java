@@ -69,14 +69,16 @@ public class BidListControllerTest {
     @DisplayName("Given the bid is valid, when submitting form, then save bid and return bid")
     @WithMockUser(roles = "USER")
     public void validateBidTest() throws Exception {
+        BidList bid = new BidList();
+        when(bidService.saveBid(ArgumentMatchers.any(BidList.class))).thenReturn(bid);
         mockMvc.perform(post("/bidList/validate")
                         .param("account", "test account")
                         .param("type", "test type")
                         .param("bidQuantity", "2")
                         .with(csrf()))
-                .andExpect(status().is2xxSuccessful())
                 .andExpect(model().hasNoErrors())
-                .andExpect(view().name("bidList/add"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/bidList/list"));
 
         verify(bidService, times(1)).saveBid(ArgumentMatchers.any(BidList.class));
     }

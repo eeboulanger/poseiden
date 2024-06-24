@@ -14,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -56,14 +57,17 @@ public class CurveControllerTest {
     @Test
     @DisplayName("Given fields are valid, then save curvepoint to database and return add view")
     public void validateAddCurvePointTest() throws Exception {
+        when(curvePointService.saveCurvePoint(ArgumentMatchers.any(CurvePoint.class))).thenReturn(new CurvePoint());
+
         mockMvc.perform(post("/curvePoint/validate")
                         .param("CurveId", "10")
                         .param("term", "10")
                         .param("value", "100")
                         .with(csrf()))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("curvePoint/add"))
-                .andExpect(model().hasNoErrors());
+                .andExpect(model().hasNoErrors())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/curvePoint/list"));
+
 
         verify(curvePointService, times(1)).saveCurvePoint(ArgumentMatchers.any(CurvePoint.class));
     }
@@ -86,7 +90,8 @@ public class CurveControllerTest {
     @Test
     @DisplayName("Given there is a curve point with the id, then show in template")
     public void showUpdateFormTest() throws Exception {
-        when(curvePointService.getCurvePointById(1)).thenReturn(new CurvePoint((byte) 10, 15d, 12d));
+        CurvePoint curvePoint = new CurvePoint((byte) 10, 15d, 12d);
+        when(curvePointService.getCurvePointById(1)).thenReturn(Optional.of(curvePoint));
 
         mockMvc.perform(get("/curvePoint/update/{id}", 1)
                         .with(csrf()))

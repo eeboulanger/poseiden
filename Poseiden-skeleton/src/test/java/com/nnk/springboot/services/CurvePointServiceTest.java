@@ -53,23 +53,15 @@ public class CurvePointServiceTest {
     }
 
     @Test
-    public void getCurvePointByIdTest() {
+    public void getCurvePointByIdTest() throws Exception {
         when(curvePointRepository.findById(1)).thenReturn(Optional.of(curvePoint));
 
-        CurvePoint result = curvePointService.getCurvePointById(1);
+        CurvePoint result = curvePointService.getCurvePointById(1).orElseThrow(Exception::new);
 
         assertNotNull(result);
         verify(curvePointRepository, times(1)).findById(1);
     }
 
-    @Test
-    public void givenNoCurvePointWithId_whenFindById_thenThrownException() {
-        when(curvePointRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> curvePointService.getCurvePointById(1));
-
-        verify(curvePointRepository, times(1)).findById(1);
-    }
 
     @Test
     public void updateCurvePointTest() {
@@ -100,20 +92,21 @@ public class CurvePointServiceTest {
 
     @Test
     public void deleteCurvePointTest() {
-        when(curvePointRepository.findById(1)).thenReturn(Optional.of(curvePoint));
+        when(curvePointRepository.existsById(1)).thenReturn(true);
 
         curvePointService.deleteCurvePoint(1);
-        verify(curvePointRepository, times(1)).findById(1);
-        verify(curvePointRepository, times(1)).delete(curvePoint);
+
+        verify(curvePointRepository, times(1)).existsById(1);
+        verify(curvePointRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void givenNoCurvePointWithId_whenDelete_thenThrowException() {
-        when(curvePointRepository.findById(1)).thenReturn(Optional.empty());
+        when(curvePointRepository.existsById(1)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> curvePointService.deleteCurvePoint(1));
 
-        verify(curvePointRepository, times(1)).findById(1);
-        verify(curvePointRepository, never()).delete(curvePoint);
+        verify(curvePointRepository, times(1)).existsById(1);
+        verify(curvePointRepository, never()).deleteById(1);
     }
 }

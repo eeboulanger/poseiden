@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CurvePointService implements ICurvePointService {
@@ -25,22 +26,28 @@ public class CurvePointService implements ICurvePointService {
     }
 
     @Override
-    public CurvePoint getCurvePointById(int id) {
-        return curvePointRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public Optional<CurvePoint> getCurvePointById(int id) {
+        return curvePointRepository.findById(id);
     }
 
     @Override
     public CurvePoint updateCurvePoint(int id, CurvePoint curvePoint) {
-        CurvePoint curve = curvePointRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        curve.setCurveId(curvePoint.getCurveId());
-        curve.setTerm(curvePoint.getTerm());
-        curve.setValue(curvePoint.getValue());
-        return curvePointRepository.save(curve);
+        return curvePointRepository.findById(id).map(curve -> {
+                            curve.setCurveId(curvePoint.getCurveId());
+                            curve.setTerm(curvePoint.getTerm());
+                            curve.setValue(curvePoint.getValue());
+                            return curvePointRepository.save(curve);
+                        }
+                )
+                .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
     }
 
     @Override
     public void deleteCurvePoint(int id) {
-        CurvePoint curvePoint = curvePointRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        curvePointRepository.delete(curvePoint);
+        if (curvePointRepository.existsById(id)) {
+            curvePointRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Entity not found");
+        }
     }
 }

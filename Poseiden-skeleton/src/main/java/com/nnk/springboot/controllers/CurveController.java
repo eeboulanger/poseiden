@@ -1,5 +1,6 @@
 package com.nnk.springboot.controllers;
 
+import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.domain.CurvePoint;
 import com.nnk.springboot.services.ICurvePointService;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,7 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -31,8 +32,7 @@ public class CurveController {
 
     @RequestMapping("/curvePoint/list")
     public String home(Model model) {
-        List<CurvePoint> curvePoints = curveService.getAllCurvePoints();
-        model.addAttribute("curvePoints", curvePoints);
+        model.addAttribute("curvePoints", curveService.getAllCurvePoints());
         return "curvePoint/list";
     }
 
@@ -45,34 +45,43 @@ public class CurveController {
     public String validate(@Valid CurvePoint curvePoint, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields has errors: " + result.getAllErrors());
+            return "curvePoint/add";
         } else {
-            curveService.saveCurvePoint(curvePoint);
-            logger.info("Saving new curve point: " + curvePoint.getCurveId() + curvePoint.getValue());
+            try {
+                CurvePoint savedCurvePoint  = curveService.saveCurvePoint(curvePoint);
+                logger.info("Saving new curve point: " + savedCurvePoint.getCurveId());
+            } catch (EntityNotFoundException exception) {
+                logger.error("Failed to save new curve point: " + exception.getMessage());
+            }
+            return "redirect:/curvePoint/list";
         }
-        return "curvePoint/add";
     }
 
     @GetMapping("/curvePoint/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        try {
-            CurvePoint curvePoint = curveService.getCurvePointById(id);
-            model.addAttribute("curvePoint", curvePoint);
+        Optional<CurvePoint> optional = curveService.getCurvePointById(id);
+        if (optional.isEmpty()) {
+            logger.error("No curve point found with id: " + id);
+            return "redirect:/curvePoint/list";
+        } else {
+            model.addAttribute("curvePoint", optional.get());
             return "curvePoint/update";
-        } catch (EntityNotFoundException exception) {
-            logger.error(exception.getMessage());
-            return "curvePoint/list";
         }
     }
 
     @PostMapping("/curvePoint/update/{id}")
     public String updateCurvePoint(@PathVariable("id") Integer id, @Valid CurvePoint curvePoint,
-                            BindingResult result, Model model) {
+                                   BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have error: " + result.getAllErrors());
             return "/curvePoint/update";
         } else {
-            curveService.updateCurvePoint(id, curvePoint);
-            logger.info("Updated Curve point with id: " + id);
+            try {
+                curveService.updateCurvePoint(id, curvePoint);
+                logger.info("Updated curve point: " + id);
+            } catch (EntityNotFoundException exception) {
+                logger.error("Failed to update curve point id={id} :" + exception.getMessage());
+            }
             return "redirect:/curvePoint/list";
         }
     }

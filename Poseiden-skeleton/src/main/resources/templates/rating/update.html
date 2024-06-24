@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>Home</title>
-	<link rel="stylesheet" href="../../css/bootstrap.min.css" >
+	<link rel="stylesheet" th:href="@{/static/css/bootstrap.min.css}" >
 </head>
 <body>
 <div class="container">
@@ -39,8 +39,8 @@
 			<div class="form-group">
 				<label for="order" class="col-sm-2 control-label">Order</label>
 				<div class="col-sm-10">
-					<input type="text" th:field="*{order}" id="order" placeholder="FitchRating" class="col-4">
-					<p class="text-danger" th:if="${#fields.hasErrors('order')}" th:errors="*{order}"></p>
+					<input type="text" th:field="*{orderNumber}" id="order" placeholder="orderNumber" class="col-4">
+					<p class="text-danger" th:if="${#fields.hasErrors('orderNumber')}" th:errors="*{orderNumber}"></p>
 				</div>
 			</div>
 
@@ -48,7 +48,7 @@
 			<div class="form-group">
 				<div class="col-sm-12">
 					<input type="hidden" th:field="*{id}">
-					<a class="btn btn-danger btn-sm" href="/rating/list">Cancel</a>
+					<a class="btn btn-danger btn-sm" th:href="@{/rating/list}">Cancel</a>
 					<input class="btn btn-primary btn-sm" type="submit" value="Update Rating">
 				</div>
 			</div>

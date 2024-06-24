@@ -74,20 +74,21 @@ public class BidServiceTest {
     @Test
     public void deleteBidTest() {
         BidList bid = new BidList("Test account", "Test type", 100.0);
-        when(repository.findById(1)).thenReturn(Optional.of(bid));
+        when(repository.existsById(1)).thenReturn(true);
 
-        service.deleteBid(1);
+         service.deleteBid(1);
 
-        verify(repository, times(1)).findById(1);
-        verify(repository, times(1)).delete(bid);
+        verify(repository, times(1)).existsById(1);
+        verify(repository, times(1)).deleteById(1);
     }
 
     @Test
     public void givenNoBidWithId_whenDeleteBid_thenThrowException() {
-        when(repository.findById(1)).thenReturn(Optional.empty());
+        when(repository.existsById(1)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> service.deleteBid(1));
 
-        verify(repository, times(1)).findById(1);
+        verify(repository, times(1)).existsById(1);
+        verify(repository, never()).deleteById(1);
     }
 }

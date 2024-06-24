@@ -15,9 +15,9 @@ public interface IBidService {
 
     BidList saveBid(BidList bid);
 
-    Optional<BidList> getBidById(Integer id);
+    Optional<BidList> getBidById(int id);
 
-    BidList updateBid(Integer id, BidList bidList);
+    BidList updateBid(int id, BidList bidList);
 
     void deleteBid(int id);
 }

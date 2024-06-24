@@ -26,22 +26,27 @@ public class BidService implements IBidService {
     }
 
     @Override
-    public Optional<BidList> getBidById(Integer id) {
+    public Optional<BidList> getBidById(int id) {
         return repository.findById(id);
     }
 
     @Override
-    public BidList updateBid(Integer id, BidList bidList) {
-        BidList bid = repository.findById(id).orElseThrow(EntityNotFoundException::new);
-        bid.setAccount(bidList.getAccount());
-        bid.setType(bidList.getType());
-        bid.setBidQuantity(bidList.getBidQuantity());
-        return repository.save(bid);
+    public BidList updateBid(int id, BidList bidList) {
+        return repository.findById(id).map(bid -> {
+                    bid.setAccount(bidList.getAccount());
+                    bid.setType(bidList.getType());
+                    bid.setBidQuantity(bidList.getBidQuantity());
+                    return repository.save(bid);
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
     }
 
     @Override
     public void deleteBid(int id) {
-        BidList bid = repository.findById(id).orElseThrow(EntityNotFoundException::new);
-        repository.delete(bid);
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Entity not found");
+        }
     }
 }

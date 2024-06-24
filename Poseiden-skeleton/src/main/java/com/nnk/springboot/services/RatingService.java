@@ -31,7 +31,7 @@ public class RatingService implements IRatingService {
 
     @Override
     public Rating updateRating(int id, Rating rating) {
-        Rating opt = ratingRepository.findById(id).map(
+        return ratingRepository.findById(id).map(
                 currentRating -> {
                     currentRating.setMoodysRating(rating.getMoodysRating());
                     currentRating.setFitchRating(rating.getFitchRating());
@@ -40,7 +40,6 @@ public class RatingService implements IRatingService {
                     return ratingRepository.save(currentRating);
                 }
         ).orElseThrow(() -> new EntityNotFoundException("Entity not found"));
-        return opt;
     }
 
     @Override

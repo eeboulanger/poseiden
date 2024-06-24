@@ -175,7 +175,7 @@ public class BidListControllerTest {
 
     //TODO handle exception
     @Test
-    @DisplayName("Given there's no user with the id, then redirect to list")
+    @DisplayName("Given there's no bid with the id, then redirect to list")
     @WithMockUser(roles = "USER")
     public void deleteBidFailsTest() throws Exception {
         doThrow(new EntityNotFoundException()).when(bidService).deleteBid(1);

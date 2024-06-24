@@ -20,13 +20,13 @@ public class BidList {
     private int id;
 
     @NotNull(message = "Account is mandatory")
-    @NotBlank(message = "Account is mandatory")
-    @NotEmpty(message = "Account is mandatory")
+    @NotBlank
+    @NotEmpty
     private String account;
 
     @NotNull(message = "Type is mandatory")
-    @NotBlank(message = "Type is mandatory")
-    @NotEmpty(message = "Type is mandatory")
+    @NotBlank
+    @NotEmpty
     private String type;
 
     private Double bidQuantity;

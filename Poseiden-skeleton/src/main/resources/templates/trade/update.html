@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <title>Home</title>
-<link rel="stylesheet" href="../../css/bootstrap.min.css" >
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" >
 </head>
 <body>
 <div class="container">
@@ -39,8 +39,8 @@
 
 			<div class="form-group">
 				<div class="col-sm-12">
-					<input type="hidden" th:field="*{id}">
-					<a class="btn btn-danger btn-sm" href="/trade/list">Cancel</a>
+					<input type="hidden" th:field="*{tradeId}">
+					<a class="btn btn-danger btn-sm" th:href="@{/trade/list}">Cancel</a>
 					<input class="btn btn-primary btn-sm" type="submit" value="Update Trade">
 				</div>
 			</div>

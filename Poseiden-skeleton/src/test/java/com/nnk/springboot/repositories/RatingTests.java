@@ -1,7 +1,6 @@
 package com.nnk.springboot.repositories;
 
 import com.nnk.springboot.domain.Rating;
-import com.nnk.springboot.repositories.RatingRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +10,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,6 +37,10 @@ public class RatingTests {
 		// Find
 		List<Rating> listResult = ratingRepository.findAll();
 		Assert.assertTrue(listResult.size() > 0);
+
+		//Find by Id
+		Optional<Rating> optional = ratingRepository.findById(rating.getId());
+		assertTrue(optional.isPresent());
 
 		// Delete
 		Integer id = rating.getId();

@@ -1,24 +1,36 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Trade;
+import com.nnk.springboot.services.ITradeService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 
 @Controller
 public class TradeController {
-    // TODO: Inject Trade service
+    private final Logger logger = LoggerFactory.getLogger(TradeController.class);
+    @Autowired
+    private ITradeService service;
+
+    //replacing httpServletRequest.remoteUser since Thymeleaf 3.1 which no longer supports #httpServerRequest
+    @ModelAttribute("remoteUser")
+    public Object remoteUser(final HttpServletRequest request) {
+        return request.getRemoteUser();
+    }
 
     @RequestMapping("/trade/list")
-    public String home(Model model)
-    {
-        // TODO: find all Trade, add to model
+    public String home(Model model) {
+        model.addAttribute("trades", service.getAllTrades());
         return "trade/list";
     }
 
@@ -29,26 +41,56 @@ public class TradeController {
 
     @PostMapping("/trade/validate")
     public String validate(@Valid Trade trade, BindingResult result, Model model) {
-        // TODO: check data valid and save to db, after saving return Trade list
-        return "trade/add";
+        if (result.hasErrors()) {
+            logger.error("Trade has field errors: " + result.getAllErrors());
+            return "trade/add";
+        } else {
+            try {
+                Trade savedTrade = service.saveTrade(trade);
+                logger.info("Trade saved successfully: " + savedTrade.getTradeId());
+            } catch (EntityNotFoundException exception) {
+                logger.error("Failed to save new Trade: " + exception.getMessage());
+            }
+        }
+        return "redirect:/trade/list";
     }
 
     @GetMapping("/trade/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        // TODO: get Trade by Id and to model then show to the form
-        return "trade/update";
+        Optional<Trade> optional = service.getTradeById(id);
+        if (optional.isEmpty()) {
+            logger.error("No trade found with id: " + id);
+            return "redirect:/trade/list";
+        } else {
+            model.addAttribute("trade", optional.get());
+            return "trade/update";
+        }
     }
 
     @PostMapping("/trade/update/{id}")
     public String updateTrade(@PathVariable("id") Integer id, @Valid Trade trade,
-                             BindingResult result, Model model) {
-        // TODO: check required fields, if valid call service to update Trade and return Trade list
+                              BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            logger.error("Fields have errors: " + result.getAllErrors());
+            return "/trade/update";
+        } else {
+            try {
+                service.updateTrade(id, trade);
+                logger.info("Updated trade: " + id);
+            } catch (EntityNotFoundException exception) {
+                logger.error("Failed to update trade id={id} :" + exception.getMessage());
+            }
+        }
         return "redirect:/trade/list";
     }
 
     @GetMapping("/trade/delete/{id}")
     public String deleteTrade(@PathVariable("id") Integer id, Model model) {
-        // TODO: Find Trade by Id and delete the Trade, return to Trade list
+        try {
+            service.deleteTrade(id);
+        } catch (EntityNotFoundException e) {
+            logger.error("Failed to delete trade with id: " + id + ". Trade not found in database");
+        }
         return "redirect:/trade/list";
     }
 }

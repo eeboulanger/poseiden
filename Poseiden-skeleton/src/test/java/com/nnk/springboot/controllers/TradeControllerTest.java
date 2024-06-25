@@ -37,7 +37,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given there are trades, then return list ")
-    @WithMockUser(username = "User", roles = "USER")
     public void homeTest() throws Exception {
         List<Trade> list = List.of(
                 new Trade("account1", "type1", 1d),
@@ -59,7 +58,6 @@ public class TradeControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void addTradeTest() throws Exception {
         mockMvc.perform(get("/trade/add")
                         .with(csrf()))
@@ -69,7 +67,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given the trade is valid, when submitting form, then save trade and redirect")
-    @WithMockUser(roles = "USER")
     public void validateTradeTest() throws Exception {
         Trade trade = new Trade();
         when(service.saveTrade(ArgumentMatchers.any(Trade.class))).thenReturn(trade);
@@ -87,7 +84,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given the trade has field errors, when submitting form, then don't save trade and return list of trades")
-    @WithMockUser(roles = "USER")
     public void whenInvalidTrade_thenDisplayFieldErrors() throws Exception {
         mockMvc.perform(post("/trade/validate")
                         .param("account", "")
@@ -104,7 +100,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given there's a trade with the id, then add to model")
-    @WithMockUser(roles = "USER")
     public void updateTradeTest() throws Exception {
         Trade trade = new Trade("Account", "Type", 100d);
         when(service.getTradeById(1)).thenReturn(Optional.of(trade));
@@ -123,7 +118,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given there's no trade with the id, then don't add trade to model")
-    @WithMockUser(roles = "USER")
     public void givenNoTradeWithId_whenUpdate_thenDontAddToModel() throws Exception {
         when(service.getTradeById(1)).thenReturn(Optional.empty());
 
@@ -137,7 +131,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given fields are valid, update trade in database")
-    @WithMockUser(roles = "USER")
     public void updateTradeSuccessTest() throws Exception {
         mockMvc.perform(post("/trade/update/{id}", 1)
                         .param("account", "Test account")
@@ -151,7 +144,6 @@ public class TradeControllerTest {
 
     @Test
     @DisplayName("Given fields have errors, don't update trade and display errors")
-    @WithMockUser(roles = "USER")
     public void updateTradeFailsTest() throws Exception {
         mockMvc.perform(post("/trade/update/{id}", 1)
                         .param("account", "")
@@ -167,7 +159,6 @@ public class TradeControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void deleteTradeTest() throws Exception {
         mockMvc.perform(get("/trade/delete/{id}", 1)
                         .with(csrf()))
@@ -178,8 +169,7 @@ public class TradeControllerTest {
     //TODO handle exception
     @Test
     @DisplayName("Given there's no trade with the id, then redirect to list")
-    @WithMockUser(roles = "USER")
-    public void deleteBidFailsTest() throws Exception {
+    public void deleteTradeFailsTest() throws Exception {
         doThrow(new EntityNotFoundException()).when(service).deleteTrade(1);
 
         mockMvc.perform(get("/trade/delete/{id}", 1)

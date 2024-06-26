@@ -3,7 +3,6 @@ package com.nnk.springboot.controllers;
 import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.services.IBidService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
@@ -23,14 +23,11 @@ public class BidListController {
     @Autowired
     private IBidService bidService;
 
-    //replacing httpServletRequest.remoteUser since Thymeleaf 3.1 which no longer supports #httpServerRequest
-    @ModelAttribute("remoteUser")
-    public Object remoteUser(final HttpServletRequest request) {
-        return request.getRemoteUser();
-    }
-
     @RequestMapping("/bidList/list")
-    public String home(Model model) {
+    public String home(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("username", principal.getName());
+        }
         model.addAttribute("bidLists", bidService.getAllBids());
         return "bidList/list";
     }

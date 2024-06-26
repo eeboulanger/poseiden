@@ -16,4 +16,6 @@ public interface IUserService {
     User updateUser(int id, User user);
 
     void deleteUser(int id);
+
+    Optional<User> getUserByUserName(String username);
 }

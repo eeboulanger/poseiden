@@ -1,10 +1,8 @@
 package com.nnk.springboot.controllers;
 
-import com.nnk.springboot.domain.BidList;
 import com.nnk.springboot.domain.CurvePoint;
 import com.nnk.springboot.services.ICurvePointService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
@@ -24,14 +23,11 @@ public class CurveController {
     @Autowired
     private ICurvePointService curveService;
 
-    //replacing httpServletRequest.remoteUser since Thymeleaf 3.1 which no longer supports #httpServerRequest
-    @ModelAttribute("remoteUser")
-    public Object remoteUser(final HttpServletRequest request) {
-        return request.getRemoteUser();
-    }
-
     @RequestMapping("/curvePoint/list")
-    public String home(Model model) {
+    public String home(Model model, Principal principal) {
+        if (principal != null) {
+            model.addAttribute("username", principal.getName());
+        }
         model.addAttribute("curvePoints", curveService.getAllCurvePoints());
         return "curvePoint/list";
     }
@@ -48,7 +44,7 @@ public class CurveController {
             return "curvePoint/add";
         } else {
             try {
-                CurvePoint savedCurvePoint  = curveService.saveCurvePoint(curvePoint);
+                CurvePoint savedCurvePoint = curveService.saveCurvePoint(curvePoint);
                 logger.info("Saving new curve point: " + savedCurvePoint.getCurveId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new curve point: " + exception.getMessage());

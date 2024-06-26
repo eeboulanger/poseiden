@@ -55,4 +55,9 @@ public class UserService implements IUserService {
             throw new EntityNotFoundException("Entity not found");
         }
     }
+
+    @Override
+    public Optional<User> getUserByUserName(String username) {
+        return repository.findByUsername(username);
+    }
 }

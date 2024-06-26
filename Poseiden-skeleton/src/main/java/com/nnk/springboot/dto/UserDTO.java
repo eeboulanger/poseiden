@@ -13,7 +13,7 @@ public class UserDTO {
     @NotBlank(message = "Username is mandatory")
     private String username;
     @NotBlank(message = "Password is mandatory")
-    @Size(min = 8)
+    @Size(min = 8, message = "Password has to be at least 8 characters")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
             message = "Le mot de passe doit contenir au moins une lettre majuscule, et au moins un chiffre et un symbole")
     private String password;

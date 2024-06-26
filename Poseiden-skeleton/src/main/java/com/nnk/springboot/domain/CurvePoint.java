@@ -24,6 +24,7 @@ public class CurvePoint {
     private Timestamp asOfDate;
     @NotNull
     private Double term;
+    @NotNull
     @Column(name = "`value`") //Reserved word
     private Double value;
     private Timestamp creationDate;

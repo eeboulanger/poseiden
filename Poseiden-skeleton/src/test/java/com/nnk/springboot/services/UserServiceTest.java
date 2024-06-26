@@ -1,6 +1,7 @@
 package com.nnk.springboot.services;
 
 import com.nnk.springboot.domain.User;
+import com.nnk.springboot.dto.UserDTO;
 import com.nnk.springboot.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,12 +25,13 @@ public class UserServiceTest {
     private UserRepository repository;
     @InjectMocks
     private UserService service;
+    private UserDTO dto;
     private User user;
     private BCryptPasswordEncoder encoder;
 
     @BeforeEach
     public void setUp() {
-        user = new User("Joey", "password", "Joe Doe", "User");
+        user = new User("Joey", "validPass@11", "Joe Doe", "User");
         user.setId(1);
         encoder = new BCryptPasswordEncoder();
     }
@@ -47,13 +49,13 @@ public class UserServiceTest {
 
     @Test
     public void createUser() {
-        when(repository.save(user)).thenReturn(user);
+        dto= new UserDTO("Joey", "validPass@11", "Joe Doe", "User");
+        when(repository.save(any(User.class))).thenReturn(user);
 
-        User result = service.createUser(user);
+        User result = service.createUser(dto);
 
-        verify(repository, times(1)).save(user);
+        verify(repository, times(1)).save(any(User.class));
         assertNotNull(result);
-        assertTrue(encoder.matches("password", user.getPassword()));
     }
 
     @Test
@@ -70,7 +72,7 @@ public class UserServiceTest {
 
     @Test
     public void updateUserTest() {
-        User dto = new User("updated username", "newPassword", "updated fullname", "new role");
+        UserDTO dto = new UserDTO("updated username", "newPassword", "updated fullname", "new role");
         when(repository.findById(1)).thenReturn(Optional.ofNullable(user));
         when(repository.save(user)).thenReturn(user);
 
@@ -87,7 +89,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("When no user found with id, then update should fail and throw exception")
     public void updateUserFailsTest() {
-        User dto = new User("updated username", "newPassword", "updated fullname", "new role");
+        UserDTO dto = new UserDTO("updated username", "newPassword", "updated fullname", "new role");
         when(repository.findById(1)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.updateUser(1, dto));

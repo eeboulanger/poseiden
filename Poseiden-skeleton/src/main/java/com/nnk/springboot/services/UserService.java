@@ -2,6 +2,7 @@ package com.nnk.springboot.services;
 
 
 import com.nnk.springboot.domain.User;
+import com.nnk.springboot.dto.UserDTO;
 import com.nnk.springboot.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(UserDTO dto) {
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setFullname(dto.getFullname());
+        user.setRole(dto.getRole());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(encoder.encode(dto.getPassword()));
         return repository.save(user);
     }
 
@@ -34,7 +39,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User updateUser(int id, User userUpdated) {
+    public User updateUser(int id, UserDTO userUpdated) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         return repository.findById(id).map(user -> {

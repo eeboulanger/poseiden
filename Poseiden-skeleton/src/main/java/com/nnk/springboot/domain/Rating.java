@@ -1,6 +1,8 @@
 package com.nnk.springboot.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +15,13 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-
+    @NotEmpty
     private String moodysRating;
+    @NotEmpty
     private String sandPRating;
+    @NotEmpty
     private String fitchRating;
+    @NotNull
     private Integer orderNumber;
 
     public Rating() {

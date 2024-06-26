@@ -27,6 +27,7 @@ public class Trade {
     @NotBlank
     @NotEmpty
     private String type;
+    @NotNull
     private Double buyQuantity;
     private Double sellQuantity;
     private Double buyPrice;

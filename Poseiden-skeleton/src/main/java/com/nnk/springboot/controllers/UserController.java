@@ -1,6 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.User;
+import com.nnk.springboot.dto.UserDTO;
 import com.nnk.springboot.services.IUserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -29,12 +30,12 @@ public class UserController {
 
 
     @GetMapping("/user/add")
-    public String addUser(User bid) {
+    public String addUser(UserDTO userDTO) {
         return "user/add";
     }
 
     @PostMapping("/user/validate")
-    public String validate(@Valid User user, BindingResult result, Model model) {
+    public String validate(@Valid UserDTO user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("User has field errors: " + result.getAllErrors());
             return "user/add";
@@ -57,14 +58,15 @@ public class UserController {
             return "redirect:/user/list";
         } else {
             User user = optional.get();
-            user.setPassword("");
-            model.addAttribute("user", optional.get());
+            UserDTO dto = new UserDTO(user.getUsername(), "", user.getFullname(), user.getRole()); //convert user to dto
+            model.addAttribute("userDTO", dto);
+            model.addAttribute("id", id);
             return "user/update";
         }
     }
 
     @PostMapping("/user/update/{id}")
-    public String updateUser(@PathVariable("id") Integer id, @Valid User user,
+    public String updateUser(@PathVariable("id") Integer id, @Valid UserDTO user,
                              BindingResult result, Model model) {
 
         if (result.hasErrors()) {

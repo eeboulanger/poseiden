@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
-import com.nnk.springboot.domain.Trade;
 import com.nnk.springboot.domain.User;
+import com.nnk.springboot.dto.UserDTO;
 import com.nnk.springboot.services.IUserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,8 @@ public class UserControllerTest {
 
     @BeforeEach
     public void setUp() {
-        user = new User("Joey", "password", "Joe Doe", "USER");
+        user = new User("Joey", "validPassword@11", "Joe Doe", "USER");
+        user.setId(1);
     }
 
     @Test
@@ -71,23 +72,23 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("user/add"))
-                .andExpect(model().attributeExists("user"));
+                .andExpect(model().attributeExists("userDTO"));
     }
 
     @Test
     public void validateTest() throws Exception {
-        when((userService.createUser(ArgumentMatchers.any(User.class)))).thenReturn(new User());
+        when((userService.createUser(ArgumentMatchers.any(UserDTO.class)))).thenReturn(new User());
         mockMvc.perform(post("/user/validate")
                         .with(csrf())
                         .param("username", "Jane")
-                        .param("password", "myPassword")
+                        .param("password", "ValidPassword@11")
                         .param("fullname", "Jane Doe")
                         .param("role", "USER")
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/list"));
 
-        verify(userService, times(1)).createUser(ArgumentMatchers.any(User.class));
+        verify(userService, times(1)).createUser(ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -101,10 +102,10 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("user/add"))
-                .andExpect(model().errorCount(4))//Not blank
-                .andExpect(model().attributeHasFieldErrors("user", "username", "password", "fullname", "role"));
+                .andExpect(model().errorCount(6))//Not blank, password not valid size, password not valid  pattern
+                .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"));
 
-        verify(userService, never()).createUser(ArgumentMatchers.any(User.class));
+        verify(userService, never()).createUser(ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -116,11 +117,11 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("user/update"))
-                .andExpect(model().attributeExists("user"))
-                .andExpect(model().attribute("user", hasProperty("username", is(user.getUsername()))))
-                .andExpect(model().attribute("user", hasProperty("password", is(user.getPassword()))))
-                .andExpect(model().attribute("user", hasProperty("fullname", is(user.getFullname()))))
-                .andExpect(model().attribute("user", hasProperty("role", is(user.getRole()))));
+                .andExpect(model().attributeExists("userDTO"))
+                .andExpect(model().attribute("userDTO", hasProperty("username", is(user.getUsername()))))
+                .andExpect(model().attribute("userDTO", hasProperty("password", is(""))))
+                .andExpect(model().attribute("userDTO", hasProperty("fullname", is(user.getFullname()))))
+                .andExpect(model().attribute("userDTO", hasProperty("role", is(user.getRole()))));
 
 
         verify(userService, times(1)).getUserById(1);
@@ -145,13 +146,13 @@ public class UserControllerTest {
         mockMvc.perform(post("/user/update/{id}", 1)
                         .with(csrf())
                         .param("username", "Jane")
-                        .param("password", "myPassword")
+                        .param("password", "validPassword@11")
                         .param("fullname", "Jane Doe")
                         .param("role", "USER")
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/user/list"));
-        verify(userService, times(1)).updateUser(eq(1), ArgumentMatchers.any(User.class));
+        verify(userService, times(1)).updateUser(eq(1), ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -164,11 +165,11 @@ public class UserControllerTest {
                         .param("role", "")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(model().errorCount(4)) //Not blank
-                .andExpect(model().attributeHasFieldErrors("user", "username", "password", "fullname", "role"))
+                .andExpect(model().errorCount(6)) //Not blank, password Size & Pattern
+                .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"))
                 .andExpect(view().name("/user/update"));
 
-        verify(userService, never()).updateUser(eq(1), ArgumentMatchers.any(User.class));
+        verify(userService, never()).updateUser(eq(1), ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test

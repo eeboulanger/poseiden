@@ -28,7 +28,7 @@ public class LogInTest {
     @BeforeEach
     public void setUp() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user = repository.save(new User("Joe", encoder.encode("password"), "Joe Doe", "USER"));
+        user = repository.save(new User("Joe", encoder.encode("validPassword@11"), "Joe Doe", "USER"));
     }
 
     @AfterEach
@@ -38,15 +38,15 @@ public class LogInTest {
 
     @Test
     public void userLoginTest() throws Exception {
-        mockMvc.perform(formLogin("/login")
+        mockMvc.perform(formLogin("/app/login")
                         .user("Joe")
-                        .password("password"))
+                        .password("validPassword@11"))
                 .andExpect(authenticated().withUsername("Joe").withRoles("USER"));
     }
 
     @Test
     public void userLoginFailed() throws Exception {
-        mockMvc.perform(formLogin("/login").user("Joe").password("wrongpassword"))
+        mockMvc.perform(formLogin("/app/login").user("Joe").password("wron@11gpassword"))
                 .andExpect(unauthenticated());
     }
 }

@@ -1,6 +1,7 @@
 package com.nnk.springboot.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +29,8 @@ public class BidList {
     @NotBlank
     @NotEmpty
     private String type;
-
+    @NotNull
+    @Min(value = 1)
     private Double bidQuantity;
     private Double askQuantity;
     private Double bid;

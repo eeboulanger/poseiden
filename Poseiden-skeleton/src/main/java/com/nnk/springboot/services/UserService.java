@@ -29,13 +29,18 @@ public class UserService implements IUserService {
 
     @Override
     public User saveWithDto(UserDTO dto) {
-        User user = new User();
-        user.setUsername(dto.getUsername());
-        user.setFullname(dto.getFullname());
-        user.setRole(dto.getRole());
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPassword(encoder.encode(dto.getPassword()));
-        return save(user);
+        Optional<User> optional = getUserByUserName(dto.getUsername());
+        if (optional.isEmpty()) {
+            User user = new User();
+            user.setUsername(dto.getUsername());
+            user.setFullname(dto.getFullname());
+            user.setRole(dto.getRole());
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            user.setPassword(encoder.encode(dto.getPassword()));
+            return save(user);
+        } else {
+            throw new IllegalArgumentException("Username already in use");
+        }
     }
 
     @Override
@@ -50,16 +55,21 @@ public class UserService implements IUserService {
 
     @Override
     public User updateWithDto(int id, UserDTO userUpdated) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        Optional<User> optional = getUserByUserName(userUpdated.getUsername());
+        if (optional.isEmpty()) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        return repository.findById(id).map(user -> {
-                    user.setUsername(userUpdated.getUsername());
-                    user.setFullname(userUpdated.getFullname());
-                    user.setRole(userUpdated.getRole());
-                    user.setPassword(encoder.encode(userUpdated.getPassword()));
-                    return update(id, user);
-                })
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
+            return repository.findById(id).map(user -> {
+                        user.setUsername(userUpdated.getUsername());
+                        user.setFullname(userUpdated.getFullname());
+                        user.setRole(userUpdated.getRole());
+                        user.setPassword(encoder.encode(userUpdated.getPassword()));
+                        return update(id, user);
+                    })
+                    .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
+        } else {
+            throw new IllegalArgumentException("Username already in use");
+        }
     }
 
     @Override

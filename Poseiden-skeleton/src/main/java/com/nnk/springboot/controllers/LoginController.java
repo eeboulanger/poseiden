@@ -1,7 +1,9 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,17 @@ public class LoginController {
         ModelAndView mav = new ModelAndView();
         mav.setViewName("login");
         return mav;
+    }
+
+    @GetMapping("/default")
+    public String defaultSuccessUrl(HttpServletRequest request) {
+        if (request.isUserInRole("ADMIN")) {
+            return "redirect:/user/list";
+        } else if (request.isUserInRole("USER")) {
+            return "redirect:/bidList/list";
+        } else {
+            return "login";
+        }
     }
 
     @GetMapping("secure/article-details")

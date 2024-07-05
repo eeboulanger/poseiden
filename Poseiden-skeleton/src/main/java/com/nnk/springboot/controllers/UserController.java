@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,24 +19,26 @@ import java.util.Optional;
 
 
 @Controller
+@RequestMapping("/user")
+@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private IUserService userService;
 
-    @RequestMapping("/user/list")
+    @RequestMapping("/list")
     public String home(Model model) {
         model.addAttribute("users", userService.getAll());
         return "user/list";
     }
 
 
-    @GetMapping("/user/add")
+    @GetMapping("/add")
     public String addUser(UserDTO userDTO) {
         return "user/add";
     }
 
-    @PostMapping("/user/validate")
+    @PostMapping("/validate")
     public String validate(@Valid UserDTO user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("User has field errors: " + result.getAllErrors());
@@ -44,14 +47,14 @@ public class UserController {
             try {
                 User savedUser = userService.saveWithDto(user);
                 logger.info("User saved successfully: " + savedUser.getId());
-            } catch (EntityNotFoundException exception) {
+            } catch (EntityNotFoundException | IllegalArgumentException exception) {
                 logger.error("Failed to save new User: " + exception.getMessage());
             }
         }
         return "redirect:/user/list";
     }
 
-    @GetMapping("/user/update/{id}")
+    @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<User> optional = userService.getById(id);
         if (optional.isEmpty()) {
@@ -66,7 +69,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/update/{id}")
+    @PostMapping("/update/{id}")
     public String updateUser(@PathVariable("id") Integer id, @Valid UserDTO user,
                              BindingResult result, Model model) {
 
@@ -77,14 +80,14 @@ public class UserController {
             try {
                 userService.updateWithDto(id, user);
                 logger.info("Updated user: " + id);
-            } catch (EntityNotFoundException exception) {
+            } catch (EntityNotFoundException | IllegalArgumentException exception) {
                 logger.error("Failed to update user id={id} :" + exception.getMessage());
             }
         }
         return "redirect:/user/list";
     }
 
-    @GetMapping("/user/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id, Model model) {
         try {
             userService.delete(id);

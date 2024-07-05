@@ -29,18 +29,18 @@ public class UserDTOTest {
 
         userDTO.setUsername("");
         violations = validator.validate(userDTO);
-        assertEquals(1, violations.size());
+        assertEquals(2, violations.size());//Not empty, not blank
 
         userDTO.setPassword("");
         violations = validator.validate(userDTO);
-        assertEquals(4, violations.size()); //Not blank, Size & Pattern
+        assertEquals(5, violations.size()); //Not blank, Size & Pattern
 
         userDTO.setFullname("");
         violations = validator.validate(userDTO);
-        assertEquals(5, violations.size());
+        assertEquals(7, violations.size());//Not empty, not blank
 
         userDTO.setRole("");
         violations = validator.validate(userDTO);
-        assertEquals(6, violations.size());
+        assertEquals(9, violations.size());//Not empty, not blank
     }
 }

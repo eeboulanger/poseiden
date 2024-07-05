@@ -20,18 +20,18 @@ public class BidList {
     @Column(name = "BidListId")
     private int id;
 
-    @NotNull(message = "Account is mandatory")
-    @NotBlank
-    @NotEmpty
+    @NotBlank(message = "")
+    @NotEmpty(message = "Account is mandatory")
     private String account;
 
-    @NotNull(message = "Type is mandatory")
-    @NotBlank
-    @NotEmpty
+    @NotBlank(message = "")
+    @NotEmpty(message = "Type is mandatory")
     private String type;
-    @NotNull
-    @Min(value = 1)
+
+    @NotNull(message = "Enter a number higher than 0")
+    @Min(value = 1, message = "Enter a number higher than 0")
     private Double bidQuantity;
+
     private Double askQuantity;
     private Double bid;
     private Double ask;

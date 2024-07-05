@@ -1,6 +1,7 @@
 package com.nnk.springboot.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,16 +20,19 @@ public class Trade {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tradeId")
     private int tradeId;
-    @NotNull(message = "Account is mandatory")
-    @NotBlank
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Account is mandatory")
     private String account;
-    @NotNull(message = "Type is mandatory")
-    @NotBlank
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Type is mandatory")
     private String type;
-    @NotNull
+
+    @NotNull(message = "Enter a number")
+    @Min(value = 1, message = "Enter a number higher than 0")
     private Double buyQuantity;
+
     private Double sellQuantity;
     private Double buyPrice;
     private Double sellPrice;

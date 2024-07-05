@@ -17,10 +17,10 @@
         <form action="#" th:action="@{/curvePoint/validate}" th:object="${curvePoint}" method="post"
               class="form-horizontal" style="width: 100%">
             <div class="form-group">
-                <label for="CurveId" class="col-sm-2 control-label">Curve Id</label>
+                <label for="curveId" class="col-sm-2 control-label">Curve Id</label>
                 <div class="col-sm-10">
-                    <input type="number" th:field="*{CurveId}" id="CurveId" placeholder="Curve Id" class="col-4">
-                    <p class="text-danger" th:if="${#fields.hasErrors('CurveId')}" th:errors="*{CurveId}"></p>
+                    <input type="number" th:field="*{curveId}" id="curveId" placeholder="Curve Id" class="col-4">
+                    <p class="text-danger" th:if="${#fields.hasErrors('curveId')}" th:errors="*{curveId}"></p>
                 </div>
             </div>
             <div class="form-group">

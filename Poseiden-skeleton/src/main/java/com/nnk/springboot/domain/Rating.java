@@ -1,6 +1,8 @@
 package com.nnk.springboot.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,13 +17,21 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String moodysRating;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String sandPRating;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String fitchRating;
-    @NotNull
+
+    @NotNull(message = "Enter a number")
+    @Min(value = 1, message = "Enter a number higher than 0")
     private Integer orderNumber;
 
     public Rating() {

@@ -1,6 +1,7 @@
 package com.nnk.springboot.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,17 +15,29 @@ public class RuleName {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String name;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String description;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String json;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String template;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String sqlStr;
-    @NotEmpty
+
+    @NotBlank(message = "")
+    @NotEmpty(message = "Must not be empty")
     private String sqlPart;
 
     public RuleName() {

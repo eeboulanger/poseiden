@@ -1,6 +1,7 @@
 package com.nnk.springboot.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,16 +11,22 @@ import lombok.Setter;
 @Setter
 public class UserDTO {
 
-    @NotBlank(message = "Username is mandatory")
+    @NotEmpty(message = "Username is mandatory")
+    @NotBlank(message = "")
     private String username;
-    @NotBlank(message = "Password is mandatory")
+
+    @NotEmpty(message = "Password is mandatory")
     @Size(min = 8, message = "Password has to be at least 8 characters")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
             message = "Le mot de passe doit contenir au moins une lettre majuscule, et au moins un chiffre et un symbole")
     private String password;
-    @NotBlank(message = "FullName is mandatory")
+
+    @NotEmpty(message = "FullName is mandatory")
+    @NotBlank(message = "")
     private String fullname;
-    @NotBlank(message = "Role is mandatory")
+
+    @NotEmpty(message = "Role is mandatory")
+    @NotBlank(message = "")
     private String role;
 
     public UserDTO(String username, String password, String fullname, String role) {

@@ -102,7 +102,7 @@ public class UserControllerTest {
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("user/add"))
-                .andExpect(model().errorCount(6))//Not blank, password not valid size, password not valid  pattern
+                .andExpect(model().errorCount(9))//Not blank, password not valid size, password not valid  pattern
                 .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"));
 
         verify(userService, never()).saveWithDto(ArgumentMatchers.any(UserDTO.class));
@@ -165,7 +165,7 @@ public class UserControllerTest {
                         .param("role", "")
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(model().errorCount(6)) //Not blank, password Size & Pattern
+                .andExpect(model().errorCount(9)) //Not blank, password Size & Pattern
                 .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"))
                 .andExpect(view().name("/user/update"));
 

@@ -47,8 +47,10 @@ public class UserController {
             try {
                 User savedUser = userService.saveWithDto(user);
                 logger.info("User saved successfully: " + savedUser.getId());
-            } catch (EntityNotFoundException | IllegalArgumentException exception) {
+            } catch (IllegalArgumentException exception) {
                 logger.error("Failed to save new User: " + exception.getMessage());
+                model.addAttribute("error", exception.getMessage());
+                return "user/add";
             }
         }
         return "redirect:/user/list";
@@ -82,13 +84,15 @@ public class UserController {
                 logger.info("Updated user: " + id);
             } catch (EntityNotFoundException | IllegalArgumentException exception) {
                 logger.error("Failed to update user id={id} :" + exception.getMessage());
+                model.addAttribute("error", exception.getMessage());
+                return "/user/update";
             }
         }
         return "redirect:/user/list";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Integer id, Model model) {
+    public String deleteUser(@PathVariable("id") Integer id) {
         try {
             userService.delete(id);
         } catch (EntityNotFoundException e) {

@@ -55,21 +55,21 @@ public class UserService implements IUserService {
 
     @Override
     public User updateWithDto(int id, UserDTO userUpdated) {
-        Optional<User> optional = getUserByUserName(userUpdated.getUsername());
-        if (optional.isEmpty()) {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        User user = getById(id).orElseThrow(() -> new EntityNotFoundException("Entity not found"));//Find user to update
 
-            return repository.findById(id).map(user -> {
-                        user.setUsername(userUpdated.getUsername());
-                        user.setFullname(userUpdated.getFullname());
-                        user.setRole(userUpdated.getRole());
-                        user.setPassword(encoder.encode(userUpdated.getPassword()));
-                        return update(id, user);
-                    })
-                    .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
-        } else {
-            throw new IllegalArgumentException("Username already in use");
+        //if username has changed, check that it's not already in use
+        if (!user.getUsername().equals(userUpdated.getUsername())) {
+            Optional<User> optional = getUserByUserName(userUpdated.getUsername());
+            if (optional.isPresent()) {
+                throw new IllegalArgumentException("Username already in use");
+            }
         }
+        user.setUsername(userUpdated.getUsername());
+        user.setFullname(userUpdated.getFullname());
+        user.setRole(userUpdated.getRole());
+        user.setPassword(encoder.encode(userUpdated.getPassword()));
+        return update(id, user);
     }
 
     @Override

@@ -24,7 +24,7 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error", "/css/bootstrap.min.css", "/user/**").permitAll()
+                        .requestMatchers("/", "/app/error", "/css/bootstrap.min.css").permitAll()
                         .anyRequest().authenticated())
                 .formLogin((form) -> form
                         .loginPage("/app/login")
@@ -36,6 +36,8 @@ public class SpringSecurityConfig {
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .clearAuthentication(true))
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/app/error"))
                 .build();
     }
 

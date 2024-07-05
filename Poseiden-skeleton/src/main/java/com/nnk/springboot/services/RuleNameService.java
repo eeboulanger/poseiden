@@ -10,27 +10,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RuleNameService implements IRuleNameService {
+public class RuleNameService implements ICrudService<RuleName> {
     @Autowired
     private RuleNameRepository repository;
 
     @Override
-    public List<RuleName> getAllRuleNames() {
+    public List<RuleName> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public RuleName createRuleName(RuleName ruleName) {
+    public RuleName save(RuleName ruleName) {
         return repository.save(ruleName);
     }
 
     @Override
-    public Optional<RuleName> getRuleNameById(int id) {
+    public Optional<RuleName> getById(int id) {
         return repository.findById(id);
     }
 
     @Override
-    public RuleName updateRuleName(int id, RuleName ruleName) {
+    public RuleName update(int id, RuleName ruleName) {
         return repository.findById(id).map(
                 currentRuleName -> {
                     currentRuleName.setName(ruleName.getName());
@@ -45,7 +45,7 @@ public class RuleNameService implements IRuleNameService {
     }
 
     @Override
-    public void deleteRuleName(int id) {
+    public void delete(int id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
         } else {

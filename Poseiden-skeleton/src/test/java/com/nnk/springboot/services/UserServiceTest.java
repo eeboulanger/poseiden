@@ -40,7 +40,7 @@ public class UserServiceTest {
     public void getAllUsersTest() {
         when(repository.findAll()).thenReturn(List.of(user));
 
-        List<User> result = service.getAllUsers();
+        List<User> result = service.getAll();
 
         assertEquals(1, result.size());
         verify(repository, times(1)).findAll();
@@ -52,7 +52,7 @@ public class UserServiceTest {
         dto= new UserDTO("Joey", "validPass@11", "Joe Doe", "User");
         when(repository.save(any(User.class))).thenReturn(user);
 
-        User result = service.createUser(dto);
+        User result = service.saveWithDto(dto);
 
         verify(repository, times(1)).save(any(User.class));
         assertNotNull(result);
@@ -62,7 +62,7 @@ public class UserServiceTest {
     public void getUserByIdTest() {
         when(repository.findById(1)).thenReturn(Optional.ofNullable(user));
 
-        Optional<User> result = service.getUserById(1);
+        Optional<User> result = service.getById(1);
 
         verify(repository, times(1)).findById(1);
         assertTrue(result.isPresent());
@@ -76,7 +76,7 @@ public class UserServiceTest {
         when(repository.findById(1)).thenReturn(Optional.ofNullable(user));
         when(repository.save(user)).thenReturn(user);
 
-        User result = service.updateUser(1, dto);
+        User result = service.updateWithDto(1, dto);
 
         verify(repository, times(1)).findById(1);
         verify(repository, times(1)).save(user);
@@ -92,7 +92,7 @@ public class UserServiceTest {
         UserDTO dto = new UserDTO("updated username", "newPassword", "updated fullname", "new role");
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.updateUser(1, dto));
+        assertThrows(EntityNotFoundException.class, () -> service.updateWithDto(1, dto));
 
         verify(repository, times(1)).findById(1);
         verify(repository, never()).save(any(User.class));
@@ -102,7 +102,7 @@ public class UserServiceTest {
     public void deleteUserTest() {
         when(repository.existsById(1)).thenReturn(true);
 
-        service.deleteUser(1);
+        service.delete(1);
 
         verify(repository, times(1)).existsById(1);
         verify(repository, times(1)).deleteById(1);
@@ -113,7 +113,7 @@ public class UserServiceTest {
     public void deleteUserFailsTest() {
         when(repository.existsById(1)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> service.deleteUser(1));
+        assertThrows(EntityNotFoundException.class, () -> service.delete(1));
 
         verify(repository, times(1)).existsById(1);
         verify(repository, never()).deleteById(anyInt());

@@ -18,28 +18,38 @@ public class UserService implements IUserService {
     private UserRepository repository;
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public User createUser(UserDTO dto) {
+    public User save(User user) {
+        return repository.save(user);
+    }
+
+    @Override
+    public User saveWithDto(UserDTO dto) {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setFullname(dto.getFullname());
         user.setRole(dto.getRole());
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         user.setPassword(encoder.encode(dto.getPassword()));
-        return repository.save(user);
+        return save(user);
     }
 
     @Override
-    public Optional<User> getUserById(int id) {
+    public Optional<User> getById(int id) {
         return repository.findById(id);
     }
 
     @Override
-    public User updateUser(int id, UserDTO userUpdated) {
+    public User update(int id, User user) {
+        return repository.save(user);
+    }
+
+    @Override
+    public User updateWithDto(int id, UserDTO userUpdated) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         return repository.findById(id).map(user -> {
@@ -47,13 +57,13 @@ public class UserService implements IUserService {
                     user.setFullname(userUpdated.getFullname());
                     user.setRole(userUpdated.getRole());
                     user.setPassword(encoder.encode(userUpdated.getPassword()));
-                    return repository.save(user);
+                    return update(id, user);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found"));
     }
 
     @Override
-    public void deleteUser(int id) {
+    public void delete(int id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
         } else {
@@ -61,7 +71,6 @@ public class UserService implements IUserService {
         }
     }
 
-    @Override
     public Optional<User> getUserByUserName(String username) {
         return repository.findByUsername(username);
     }

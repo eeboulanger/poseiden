@@ -10,28 +10,28 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BidService implements IBidService {
+public class BidService implements ICrudService<BidList> {
 
     @Autowired
     private BidListRepository repository;
 
     @Override
-    public List<BidList> getAllBids() {
+    public List<BidList> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public BidList saveBid(BidList bid) {
+    public BidList save(BidList bid) {
         return repository.save(bid);
     }
 
     @Override
-    public Optional<BidList> getBidById(int id) {
+    public Optional<BidList> getById(int id) {
         return repository.findById(id);
     }
 
     @Override
-    public BidList updateBid(int id, BidList bidList) {
+    public BidList update(int id, BidList bidList) {
         return repository.findById(id).map(bid -> {
                     bid.setAccount(bidList.getAccount());
                     bid.setType(bidList.getType());
@@ -42,7 +42,7 @@ public class BidService implements IBidService {
     }
 
     @Override
-    public void deleteBid(int id) {
+    public void delete(int id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
         } else {

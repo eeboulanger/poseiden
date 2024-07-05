@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.BidList;
-import com.nnk.springboot.services.IBidService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,14 +21,14 @@ public class BidListController {
     private final Logger logger = LoggerFactory.getLogger(BidListController.class);
 
     @Autowired
-    private IBidService bidService;
+    private ICrudService<BidList> bidService;
 
     @RequestMapping("/bidList/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
-        model.addAttribute("bidLists", bidService.getAllBids());
+        model.addAttribute("bidLists", bidService.getAll());
         return "bidList/list";
     }
 
@@ -44,7 +44,7 @@ public class BidListController {
             return "bidList/add";
         } else {
             try {
-                BidList savedBid = bidService.saveBid(bid);
+                BidList savedBid = (BidList) bidService.save(bid);
                 logger.info("Bid saved successfully: " + savedBid.getId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new bid: " + exception.getMessage());
@@ -55,7 +55,7 @@ public class BidListController {
 
     @GetMapping("/bidList/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<BidList> optional = bidService.getBidById(id);
+        Optional<BidList> optional = bidService.getById(id);
         if (optional.isEmpty()) {
             logger.error("No bid found with id: " + id);
             return "redirect:/bidList/list";
@@ -73,7 +73,7 @@ public class BidListController {
             return "/bidList/update";
         } else {
             try {
-                bidService.updateBid(id, bidList);
+                bidService.update(id, bidList);
                 logger.info("Updated bid: " + id);
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update bid id={id} :" + exception.getMessage());
@@ -85,7 +85,7 @@ public class BidListController {
     @GetMapping("/bidList/delete/{id}")
     public String deleteBid(@PathVariable("id") Integer id, Model model) {
         try {
-            bidService.deleteBid(id);
+            bidService.delete(id);
         } catch (EntityNotFoundException e) {
             logger.error("Failed to delete bid with id: " + id + ". Bid not found in database");
         }

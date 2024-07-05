@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Trade;
-import com.nnk.springboot.services.ITradeService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,14 +20,14 @@ import java.util.Optional;
 public class TradeController {
     private final Logger logger = LoggerFactory.getLogger(TradeController.class);
     @Autowired
-    private ITradeService service;
+    private ICrudService<Trade> service;
 
     @RequestMapping("/trade/list")
     public String home(Model model, Principal principal) {
         if(principal!=null) {
             model.addAttribute("username", principal.getName());
         }
-        model.addAttribute("trades", service.getAllTrades());
+        model.addAttribute("trades", service.getAll());
         return "trade/list";
     }
 
@@ -43,7 +43,7 @@ public class TradeController {
             return "trade/add";
         } else {
             try {
-                Trade savedTrade = service.saveTrade(trade);
+                Trade savedTrade = service.save(trade);
                 logger.info("Trade saved successfully: " + savedTrade.getTradeId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new Trade: " + exception.getMessage());
@@ -54,7 +54,7 @@ public class TradeController {
 
     @GetMapping("/trade/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<Trade> optional = service.getTradeById(id);
+        Optional<Trade> optional = service.getById(id);
         if (optional.isEmpty()) {
             logger.error("No trade found with id: " + id);
             return "redirect:/trade/list";
@@ -72,7 +72,7 @@ public class TradeController {
             return "/trade/update";
         } else {
             try {
-                service.updateTrade(id, trade);
+                service.update(id, trade);
                 logger.info("Updated trade: " + id);
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update trade id={id} :" + exception.getMessage());
@@ -84,7 +84,7 @@ public class TradeController {
     @GetMapping("/trade/delete/{id}")
     public String deleteTrade(@PathVariable("id") Integer id, Model model) {
         try {
-            service.deleteTrade(id);
+            service.delete(id);
         } catch (EntityNotFoundException e) {
             logger.error("Failed to delete trade with id: " + id + ". Trade not found in database");
         }

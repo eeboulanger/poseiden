@@ -32,7 +32,7 @@ public class TradeServiceTest {
                 new Trade("account2", "type2", 1d));
         when(repository.findAll()).thenReturn(list);
 
-        List<Trade> result = service.getAllTrades();
+        List<Trade> result = service.getAll();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -44,7 +44,7 @@ public class TradeServiceTest {
         Trade trade = new Trade();
         when(repository.findById(1)).thenReturn(Optional.of(trade));
 
-        Optional<Trade> result = service.getTradeById(1);
+        Optional<Trade> result = service.getById(1);
 
         assertTrue(result.isPresent());
     }
@@ -56,7 +56,7 @@ public class TradeServiceTest {
         when(repository.findById(1)).thenReturn(Optional.of(trade));
         when(repository.save(any(Trade.class))).thenReturn(trade);
 
-        Trade result = service.updateTrade(1, dto);
+        Trade result = service.update(1, dto);
 
         assertEquals(dto.getAccount(), result.getAccount());
         assertEquals(dto.getType(), result.getType());
@@ -68,7 +68,7 @@ public class TradeServiceTest {
         Trade dto = new Trade("account", "type", 20d);
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.updateTrade(1, dto));
+        assertThrows(EntityNotFoundException.class, () -> service.update(1, dto));
 
         verify(repository, times(1)).findById(1);
     }
@@ -78,7 +78,7 @@ public class TradeServiceTest {
         Trade dto = new Trade("Test account", "Test type", 100.0);
         when(repository.existsById(1)).thenReturn(true);
 
-        service.deleteTrade(1);
+        service.delete(1);
 
         verify(repository, times(1)).existsById(1);
         verify(repository, times(1)).deleteById(1);
@@ -88,7 +88,7 @@ public class TradeServiceTest {
     public void givenNoTradeWithId_whenDelete_thenThrowException() {
         when(repository.existsById(1)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> service.deleteTrade(1));
+        assertThrows(EntityNotFoundException.class, () -> service.delete(1));
 
         verify(repository, times(1)).existsById(1);
         verify(repository, never()).deleteById(1);

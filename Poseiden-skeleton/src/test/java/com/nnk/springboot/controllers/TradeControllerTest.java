@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Trade;
-import com.nnk.springboot.services.ITradeService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class TradeControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private ITradeService service;
+    private ICrudService<Trade> service;
     @InjectMocks
     private TradeController controller;
 
@@ -41,7 +41,7 @@ public class TradeControllerTest {
         List<Trade> list = List.of(
                 new Trade("account1", "type1", 1d),
                 new Trade("account2", "type2", 1d));
-        when(service.getAllTrades()).thenReturn(list);
+        when(service.getAll()).thenReturn(list);
 
         mockMvc.perform(get("/trade/list")
                         .with(csrf()))
@@ -54,7 +54,7 @@ public class TradeControllerTest {
                         hasProperty("account", is("account2"))
                 )));
 
-        verify(service, times(1)).getAllTrades();
+        verify(service, times(1)).getAll();
     }
 
     @Test
@@ -69,7 +69,7 @@ public class TradeControllerTest {
     @DisplayName("Given the trade is valid, when submitting form, then save trade and redirect")
     public void validateTradeTest() throws Exception {
         Trade trade = new Trade();
-        when(service.saveTrade(ArgumentMatchers.any(Trade.class))).thenReturn(trade);
+        when(service.save(ArgumentMatchers.any(Trade.class))).thenReturn(trade);
         mockMvc.perform(post("/trade/validate")
                         .param("account", "test account")
                         .param("type", "test type")
@@ -79,7 +79,7 @@ public class TradeControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/trade/list"));
 
-        verify(service, times(1)).saveTrade(ArgumentMatchers.any(Trade.class));
+        verify(service, times(1)).save(ArgumentMatchers.any(Trade.class));
     }
 
     @Test
@@ -95,14 +95,14 @@ public class TradeControllerTest {
                 .andExpect(model().errorCount(4))//Account and Type Not blank, Not Empty
                 .andExpect(model().attributeHasFieldErrors("trade", "account", "type"));
 
-        verify(service, never()).saveTrade(ArgumentMatchers.any(Trade.class));
+        verify(service, never()).save(ArgumentMatchers.any(Trade.class));
     }
 
     @Test
     @DisplayName("Given there's a trade with the id, then add to model")
     public void updateTradeTest() throws Exception {
         Trade trade = new Trade("Account", "Type", 100d);
-        when(service.getTradeById(1)).thenReturn(Optional.of(trade));
+        when(service.getById(1)).thenReturn(Optional.of(trade));
 
         mockMvc.perform(get("/trade/update/{id}", 1)
                         .with(csrf()))
@@ -113,20 +113,20 @@ public class TradeControllerTest {
                 .andExpect(model().attribute("trade", hasProperty("type", is("Type"))))
                 .andExpect(model().attribute("trade", hasProperty("buyQuantity", is(100.0))));
 
-        verify(service, times(1)).getTradeById(1);
+        verify(service, times(1)).getById(1);
     }
 
     @Test
     @DisplayName("Given there's no trade with the id, then don't add trade to model")
     public void givenNoTradeWithId_whenUpdate_thenDontAddToModel() throws Exception {
-        when(service.getTradeById(1)).thenReturn(Optional.empty());
+        when(service.getById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/trade/update/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/trade/list"));
 
-        verify(service, times(1)).getTradeById(1);
+        verify(service, times(1)).getById(1);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class TradeControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/trade/list"));
-        verify(service, times(1)).updateTrade(eq(1), ArgumentMatchers.any(Trade.class));
+        verify(service, times(1)).update(eq(1), ArgumentMatchers.any(Trade.class));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class TradeControllerTest {
                 .andExpect(model().attributeHasFieldErrors("trade", "account", "type"))
                 .andExpect(view().name("/trade/update"));
 
-        verify(service, never()).updateTrade(eq(1), ArgumentMatchers.any(Trade.class));
+        verify(service, never()).update(eq(1), ArgumentMatchers.any(Trade.class));
     }
 
     @Test
@@ -170,13 +170,13 @@ public class TradeControllerTest {
     @Test
     @DisplayName("Given there's no trade with the id, then redirect to list")
     public void deleteTradeFailsTest() throws Exception {
-        doThrow(new EntityNotFoundException()).when(service).deleteTrade(1);
+        doThrow(new EntityNotFoundException()).when(service).delete(1);
 
         mockMvc.perform(get("/trade/delete/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/trade/list"));
 
-        verify(service, times(1)).deleteTrade(1);
+        verify(service, times(1)).delete(1);
     }
 }

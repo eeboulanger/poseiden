@@ -10,27 +10,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class RatingService implements IRatingService {
+public class RatingService implements ICrudService<Rating> {
     @Autowired
     private RatingRepository ratingRepository;
 
     @Override
-    public List<Rating> getAllRatings() {
+    public List<Rating> getAll() {
         return ratingRepository.findAll();
     }
 
     @Override
-    public Rating createRating(Rating rating) {
+    public Rating save(Rating rating) {
         return ratingRepository.save(rating);
     }
 
     @Override
-    public Optional<Rating> getRatingById(int id) {
+    public Optional<Rating> getById(int id) {
         return ratingRepository.findById(id);
     }
 
     @Override
-    public Rating updateRating(int id, Rating rating) {
+    public Rating update(int id, Rating rating) {
         return ratingRepository.findById(id).map(
                 currentRating -> {
                     currentRating.setMoodysRating(rating.getMoodysRating());
@@ -43,7 +43,7 @@ public class RatingService implements IRatingService {
     }
 
     @Override
-    public void deleteRating(int id) {
+    public void delete(int id) {
         if (ratingRepository.existsById(id)) {
             ratingRepository.deleteById(id);
         } else {

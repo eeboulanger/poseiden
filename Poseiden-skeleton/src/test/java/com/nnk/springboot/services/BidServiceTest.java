@@ -30,7 +30,7 @@ public class BidServiceTest {
                 new BidList("account2", "type2", 1));
         when(repository.findAll()).thenReturn(list);
 
-        List<BidList> result = service.getAllBids();
+        List<BidList> result = service.getAll();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -42,7 +42,7 @@ public class BidServiceTest {
         BidList bid = new BidList();
         when(repository.findById(1)).thenReturn(Optional.of(bid));
 
-        Optional<BidList> result = service.getBidById(1);
+        Optional<BidList> result = service.getById(1);
 
         assertTrue(result.isPresent());
     }
@@ -54,7 +54,7 @@ public class BidServiceTest {
         when(repository.findById(1)).thenReturn(Optional.of(bid));
         when(repository.save(any(BidList.class))).thenReturn(bid);
 
-        BidList result = service.updateBid(1, bidDto);
+        BidList result = service.update(1, bidDto);
 
         assertEquals(bidDto.getAccount(), result.getAccount());
         assertEquals(bidDto.getType(), result.getType());
@@ -66,7 +66,7 @@ public class BidServiceTest {
         BidList bidDto = new BidList("account", "type", 20);
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.updateBid(1, bidDto));
+        assertThrows(EntityNotFoundException.class, () -> service.update(1, bidDto));
 
         verify(repository, times(1)).findById(1);
     }
@@ -76,7 +76,7 @@ public class BidServiceTest {
         BidList bid = new BidList("Test account", "Test type", 100.0);
         when(repository.existsById(1)).thenReturn(true);
 
-         service.deleteBid(1);
+         service.delete(1);
 
         verify(repository, times(1)).existsById(1);
         verify(repository, times(1)).deleteById(1);
@@ -86,7 +86,7 @@ public class BidServiceTest {
     public void givenNoBidWithId_whenDeleteBid_thenThrowException() {
         when(repository.existsById(1)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> service.deleteBid(1));
+        assertThrows(EntityNotFoundException.class, () -> service.delete(1));
 
         verify(repository, times(1)).existsById(1);
         verify(repository, never()).deleteById(1);

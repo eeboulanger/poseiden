@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Rating;
-import com.nnk.springboot.services.IRatingService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,14 +21,14 @@ public class RatingController {
     private final Logger logger = LoggerFactory.getLogger(RatingController.class);
 
     @Autowired
-    private IRatingService ratingService;
+    private ICrudService<Rating> ratingService;
 
     @RequestMapping("/rating/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
-        model.addAttribute("ratings", ratingService.getAllRatings());
+        model.addAttribute("ratings", ratingService.getAll());
         return "rating/list";
     }
 
@@ -44,7 +44,7 @@ public class RatingController {
             return "/rating/add";
         } else {
             try {
-                Rating savedRating = ratingService.createRating(rating);
+                Rating savedRating = ratingService.save(rating);
                 logger.info("Saving new curve point: " + savedRating.getId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new rating: " + exception.getMessage());
@@ -55,7 +55,7 @@ public class RatingController {
 
     @GetMapping("/rating/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<Rating> optional = ratingService.getRatingById(id);
+        Optional<Rating> optional = ratingService.getById(id);
         if (optional.isEmpty()) {
             logger.error("No rating found with id: " + id);
             return "redirect:/rating/list";
@@ -73,7 +73,7 @@ public class RatingController {
             return "/rating/update";
         } else {
             try {
-                ratingService.updateRating(id, rating);
+                ratingService.update(id, rating);
                 logger.info("Updated rating: {id}");
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update rating id= {id} : " + exception.getMessage());
@@ -85,7 +85,7 @@ public class RatingController {
     @GetMapping("/rating/delete/{id}")
     public String deleteRating(@PathVariable("id") Integer id, Model model) {
         try {
-            ratingService.deleteRating(id);
+            ratingService.delete(id);
             logger.info("Deleted rating with id: {id}");
         } catch (EntityNotFoundException exception) {
             logger.error("Failed to delete rating with id={id}: " + exception.getMessage());

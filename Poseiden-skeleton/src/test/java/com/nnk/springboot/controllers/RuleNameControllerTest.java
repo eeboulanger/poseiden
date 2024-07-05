@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.RuleName;
-import com.nnk.springboot.services.IRuleNameService;
+import com.nnk.springboot.services.ICrudService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class RuleNameControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private IRuleNameService ruleNameService;
+    private ICrudService<RuleName> ruleNameService;
     @InjectMocks
     private RuleNameController ruleNameController;
     private static RuleName ruleName;
@@ -48,7 +48,7 @@ public class RuleNameControllerTest {
     public void homeTest() throws Exception {
         List<RuleName> list = List.of(ruleName);
 
-        when(ruleNameService.getAllRuleNames()).thenReturn(list);
+        when(ruleNameService.getAll()).thenReturn(list);
         mockMvc.perform(get("/ruleName/list")
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -64,7 +64,7 @@ public class RuleNameControllerTest {
                                 hasProperty("sqlPart", is(ruleName.getSqlPart()))
                         ))));
 
-        verify(ruleNameService, times(1)).getAllRuleNames();
+        verify(ruleNameService, times(1)).getAll();
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RuleNameControllerTest {
 
     @Test
     public void validateRuleNameSuccessTest() throws Exception {
-        when(ruleNameService.createRuleName(ArgumentMatchers.any(RuleName.class))).thenReturn(new RuleName());
+        when(ruleNameService.save(ArgumentMatchers.any(RuleName.class))).thenReturn(new RuleName());
 
         mockMvc.perform(post("/ruleName/validate")
                         .param("name", ruleName.getName())
@@ -90,14 +90,14 @@ public class RuleNameControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/ruleName/list"));
 
-        verify(ruleNameService, times(1)).createRuleName(ArgumentMatchers.any(RuleName.class));
+        verify(ruleNameService, times(1)).save(ArgumentMatchers.any(RuleName.class));
     }
 
     //TODO test validate fails, decide on validation rules for Rule name dto?
 
     @Test
     public void showUpdateFormTest() throws Exception {
-        when(ruleNameService.getRuleNameById(1)).thenReturn(Optional.ofNullable(ruleName));
+        when(ruleNameService.getById(1)).thenReturn(Optional.ofNullable(ruleName));
 
         mockMvc.perform(get("/ruleName/update/{id}", 1)
                         .with(csrf()))
@@ -110,25 +110,25 @@ public class RuleNameControllerTest {
                 .andExpect(model().attribute("ruleName", hasProperty("sqlStr", is(ruleName.getSqlStr()))))
                 .andExpect(model().attribute("ruleName", hasProperty("sqlPart", is(ruleName.getSqlPart()))));
 
-        verify(ruleNameService, times(1)).getRuleNameById(1);
+        verify(ruleNameService, times(1)).getById(1);
     }
 
     @Test
     @DisplayName("Given there's no rule name with the id, then redirect to list")
     public void givenNoRuleNameWithId_whenUpdate_thenDontAddToModel() throws Exception {
-        when(ruleNameService.getRuleNameById(1)).thenReturn(Optional.empty());
+        when(ruleNameService.getById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/ruleName/update/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/ruleName/list"));
 
-        verify(ruleNameService, times(1)).getRuleNameById(1);
+        verify(ruleNameService, times(1)).getById(1);
     }
 
     @Test
     public void updateRuleNameTest() throws Exception {
-        when(ruleNameService.updateRuleName(eq(1), ArgumentMatchers.any(RuleName.class))).thenReturn(ruleName);
+        when(ruleNameService.update(eq(1), ArgumentMatchers.any(RuleName.class))).thenReturn(ruleName);
 
         mockMvc.perform(post("/ruleName/update/{id}", 1)
                         .param("name", ruleName.getName())
@@ -140,7 +140,7 @@ public class RuleNameControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/ruleName/list"));
-        verify(ruleNameService, times(1)).updateRuleName(eq(1), ArgumentMatchers.any(RuleName.class));
+        verify(ruleNameService, times(1)).update(eq(1), ArgumentMatchers.any(RuleName.class));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class RuleNameControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/ruleName/list"));
 
-        verify(ruleNameService, times(1)).deleteRuleName(1);
+        verify(ruleNameService, times(1)).delete(1);
     }
 }
 

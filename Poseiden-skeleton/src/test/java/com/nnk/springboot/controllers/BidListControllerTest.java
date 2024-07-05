@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.BidList;
-import com.nnk.springboot.services.IBidService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class BidListControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private IBidService bidService;
+    private ICrudService<BidList> bidService;
     @InjectMocks
     private BidListController controller;
 
@@ -40,7 +40,7 @@ public class BidListControllerTest {
         List<BidList> list = List.of(
                 new BidList("account1", "type1", 1),
                 new BidList("account2", "type2", 1));
-        when(bidService.getAllBids()).thenReturn(list);
+        when(bidService.getAll()).thenReturn(list);
 
         mockMvc.perform(get("/bidList/list")
                         .with(csrf()))
@@ -53,7 +53,7 @@ public class BidListControllerTest {
                         hasProperty("account", is("account2"))
                 )));
 
-        verify(bidService, times(1)).getAllBids();
+        verify(bidService, times(1)).getAll();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BidListControllerTest {
     @WithMockUser(roles = "USER")
     public void validateBidTest() throws Exception {
         BidList bid = new BidList();
-        when(bidService.saveBid(ArgumentMatchers.any(BidList.class))).thenReturn(bid);
+        when(bidService.save(ArgumentMatchers.any(BidList.class))).thenReturn(bid);
         mockMvc.perform(post("/bidList/validate")
                         .param("account", "test account")
                         .param("type", "test type")
@@ -80,7 +80,7 @@ public class BidListControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bidList/list"));
 
-        verify(bidService, times(1)).saveBid(ArgumentMatchers.any(BidList.class));
+        verify(bidService, times(1)).save(ArgumentMatchers.any(BidList.class));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class BidListControllerTest {
                 .andExpect(model().errorCount(4))//Account and Type Not blank, Not Empty
                 .andExpect(model().attributeHasFieldErrors("bidList", "account", "type"));
 
-        verify(bidService, never()).saveBid(ArgumentMatchers.any(BidList.class));
+        verify(bidService, never()).save(ArgumentMatchers.any(BidList.class));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class BidListControllerTest {
     @WithMockUser(roles = "USER")
     public void updateBidTest() throws Exception {
         BidList bid = new BidList("Account", "Type", 100);
-        when(bidService.getBidById(1)).thenReturn(Optional.of(bid));
+        when(bidService.getById(1)).thenReturn(Optional.of(bid));
 
         mockMvc.perform(get("/bidList/update/{id}", 1)
                         .with(csrf()))
@@ -116,21 +116,21 @@ public class BidListControllerTest {
                 .andExpect(model().attribute("bidList", hasProperty("type", is("Type"))))
                 .andExpect(model().attribute("bidList", hasProperty("bidQuantity", is(100.0))));
 
-        verify(bidService, times(1)).getBidById(1);
+        verify(bidService, times(1)).getById(1);
     }
 
     @Test
     @DisplayName("Given there's no bid with the id, then don't add bid to model")
     @WithMockUser(roles = "USER")
     public void givenNoBidWithId_whenUpdateBid_thenDontAddToModel() throws Exception {
-        when(bidService.getBidById(1)).thenReturn(Optional.empty());
+        when(bidService.getById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/bidList/update/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/bidList/list"));
 
-        verify(bidService, times(1)).getBidById(1);
+        verify(bidService, times(1)).getById(1);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class BidListControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/bidList/list"));
-        verify(bidService, times(1)).updateBid(eq(1), ArgumentMatchers.any(BidList.class));
+        verify(bidService, times(1)).update(eq(1), ArgumentMatchers.any(BidList.class));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class BidListControllerTest {
                 .andExpect(model().attributeHasFieldErrors("bidList", "account", "type"))
                 .andExpect(view().name("/bidList/update"));
 
-        verify(bidService, never()).updateBid(eq(1), ArgumentMatchers.any(BidList.class));
+        verify(bidService, never()).update(eq(1), ArgumentMatchers.any(BidList.class));
     }
 
     @Test
@@ -178,13 +178,13 @@ public class BidListControllerTest {
     @DisplayName("Given there's no bid with the id, then redirect to list")
     @WithMockUser(roles = "USER")
     public void deleteBidFailsTest() throws Exception {
-        doThrow(new EntityNotFoundException()).when(bidService).deleteBid(1);
+        doThrow(new EntityNotFoundException()).when(bidService).delete(1);
 
         mockMvc.perform(get("/bidList/delete/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/bidList/list"));
 
-        verify(bidService, times(1)).deleteBid(1);
+        verify(bidService, times(1)).delete(1);
     }
 }

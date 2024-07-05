@@ -39,7 +39,7 @@ public class RuleNameServiceTest {
         List<RuleName> list = List.of(ruleName);
         when(repository.findAll()).thenReturn(list);
 
-        List<RuleName> result = ruleNameService.getAllRuleNames();
+        List<RuleName> result = ruleNameService.getAll();
 
         assertEquals(ruleName.getId(), result.get(0).getId());
         verify(repository, times(1)).findAll();
@@ -49,7 +49,7 @@ public class RuleNameServiceTest {
     public void createRatingTest() {
         when(repository.save(ruleName)).thenReturn(ruleName);
 
-        RuleName result = ruleNameService.createRuleName(ruleName);
+        RuleName result = ruleNameService.save(ruleName);
 
         assertEquals(ruleName.getId(), result.getId());
         verify(repository, times(1)).save(ruleName);
@@ -59,7 +59,7 @@ public class RuleNameServiceTest {
     public void getRatingByIdTest() {
         when(repository.findById(1)).thenReturn(Optional.of(ruleName));
 
-        Optional<RuleName> result = ruleNameService.getRuleNameById(1);
+        Optional<RuleName> result = ruleNameService.getById(1);
 
         assertTrue(result.isPresent());
         assertEquals(ruleName.getId(), result.get().getId());
@@ -73,7 +73,7 @@ public class RuleNameServiceTest {
         when(repository.findById(1)).thenReturn(Optional.ofNullable(ruleName));
         when(repository.save(any(RuleName.class))).thenReturn(ruleName);
 
-        RuleName result = ruleNameService.updateRuleName(1, dto);
+        RuleName result = ruleNameService.update(1, dto);
 
         assertNotNull(result);
         assertEquals(dto.getName(), result.getName());
@@ -89,7 +89,7 @@ public class RuleNameServiceTest {
     public void updateRatingFailsTest() {
         when(repository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> ruleNameService.updateRuleName(1, ruleName));
+        assertThrows(EntityNotFoundException.class, () -> ruleNameService.update(1, ruleName));
         verify(repository, never()).save(any(RuleName.class));
     }
 
@@ -97,7 +97,7 @@ public class RuleNameServiceTest {
     public void deleteRatingSuccessTest() {
         when(repository.existsById(1)).thenReturn(true);
 
-        ruleNameService.deleteRuleName(1);
+        ruleNameService.delete(1);
 
         verify(repository, times(1)).existsById(1);
         verify(repository, times(1)).deleteById(1);
@@ -108,7 +108,7 @@ public class RuleNameServiceTest {
     public void deleteRatingFailsTest() {
         when(repository.existsById(1)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> ruleNameService.deleteRuleName(1));
+        assertThrows(EntityNotFoundException.class, () -> ruleNameService.delete(1));
 
         verify(repository, never()).deleteById(1);
     }

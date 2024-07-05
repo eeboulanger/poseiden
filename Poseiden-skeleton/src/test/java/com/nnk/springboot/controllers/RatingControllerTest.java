@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Rating;
-import com.nnk.springboot.services.IRatingService;
+import com.nnk.springboot.services.ICrudService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class RatingControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private IRatingService ratingService;
+    private ICrudService<Rating> ratingService;
     @InjectMocks
     private RatingController ratingController;
     private static Rating rating;
@@ -43,7 +43,7 @@ public class RatingControllerTest {
     public void homeTest() throws Exception {
         List<Rating> list = List.of(rating);
 
-        when(ratingService.getAllRatings()).thenReturn(list);
+        when(ratingService.getAll()).thenReturn(list);
         mockMvc.perform(get("/rating/list")
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -54,7 +54,7 @@ public class RatingControllerTest {
                         hasProperty("moodysRating", is("Moodys"))
                 )));
 
-        verify(ratingService, times(1)).getAllRatings();
+        verify(ratingService, times(1)).getAll();
     }
 
     @Test
@@ -67,7 +67,7 @@ public class RatingControllerTest {
 
     @Test
     public void validateRatingSuccessTest() throws Exception {
-        when(ratingService.createRating(ArgumentMatchers.any(Rating.class))).thenReturn(new Rating());
+        when(ratingService.save(ArgumentMatchers.any(Rating.class))).thenReturn(new Rating());
 
         mockMvc.perform(post("/rating/validate")
                         .param("moodysRating", "Moodys")
@@ -78,14 +78,14 @@ public class RatingControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
 
-        verify(ratingService, times(1)).createRating(ArgumentMatchers.any(Rating.class));
+        verify(ratingService, times(1)).save(ArgumentMatchers.any(Rating.class));
     }
 
     //TODO test validate fails, decide on validation rules for Rating dto
 
     @Test
     public void showUpdateFormTest() throws Exception {
-        when(ratingService.getRatingById(1)).thenReturn(Optional.ofNullable(rating));
+        when(ratingService.getById(1)).thenReturn(Optional.ofNullable(rating));
 
         mockMvc.perform(get("/rating/update/{id}", 1)
                         .with(csrf()))
@@ -96,25 +96,25 @@ public class RatingControllerTest {
                 .andExpect(model().attribute("rating", hasProperty("fitchRating", is(rating.getFitchRating()))))
                 .andExpect(model().attribute("rating", hasProperty("orderNumber", is(rating.getOrderNumber()))));
 
-        verify(ratingService, times(1)).getRatingById(1);
+        verify(ratingService, times(1)).getById(1);
     }
 
     @Test
     @DisplayName("Given there's no rating with the id, then redirect to list")
     public void givenNoRatingWithId_whenUpdate_thenDontAddToModel() throws Exception {
-        when(ratingService.getRatingById(1)).thenReturn(Optional.empty());
+        when(ratingService.getById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/rating/update/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/rating/list"));
 
-        verify(ratingService, times(1)).getRatingById(1);
+        verify(ratingService, times(1)).getById(1);
     }
 
     @Test
     public void updateRatingTest() throws Exception {
-        when(ratingService.updateRating(eq(1), ArgumentMatchers.any(Rating.class))).thenReturn(rating);
+        when(ratingService.update(eq(1), ArgumentMatchers.any(Rating.class))).thenReturn(rating);
 
         mockMvc.perform(post("/rating/update/{id}", 1)
                         .param("moodysRating", rating.getMoodysRating())
@@ -124,7 +124,7 @@ public class RatingControllerTest {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
-        verify(ratingService, times(1)).updateRating(eq(1), ArgumentMatchers.any(Rating.class));
+        verify(ratingService, times(1)).update(eq(1), ArgumentMatchers.any(Rating.class));
     }
 
     @Test
@@ -134,6 +134,6 @@ public class RatingControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
 
-        verify(ratingService, times(1)).deleteRating(1);
+        verify(ratingService, times(1)).delete(1);
     }
 }

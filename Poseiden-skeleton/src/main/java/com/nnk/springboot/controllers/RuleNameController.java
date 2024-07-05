@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.RuleName;
-import com.nnk.springboot.services.IRuleNameService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,14 +20,14 @@ import java.util.Optional;
 public class RuleNameController {
     private final Logger logger = LoggerFactory.getLogger(RuleNameController.class);
     @Autowired
-    private IRuleNameService ruleNameService;
+    private ICrudService<RuleName> ruleNameService;
 
     @RequestMapping("/ruleName/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
-        model.addAttribute("ruleNames", ruleNameService.getAllRuleNames());
+        model.addAttribute("ruleNames", ruleNameService.getAll());
         return "ruleName/list";
     }
 
@@ -43,7 +43,7 @@ public class RuleNameController {
             return "ruleName/add";
         } else {
             try {
-                RuleName rule = ruleNameService.createRuleName(ruleName);
+                RuleName rule = ruleNameService.save(ruleName);
                 logger.info("Rule name saved successfully: " + rule.getId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new rule name: " + exception.getMessage());
@@ -54,7 +54,7 @@ public class RuleNameController {
 
     @GetMapping("/ruleName/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<RuleName> optional = ruleNameService.getRuleNameById(id);
+        Optional<RuleName> optional = ruleNameService.getById(id);
         if (optional.isEmpty()) {
             logger.error("No rule name found with id: " + id);
             return "redirect:/ruleName/list";
@@ -72,7 +72,7 @@ public class RuleNameController {
             return "/ruleName/update";
         } else {
             try {
-                ruleNameService.updateRuleName(id, ruleName);
+                ruleNameService.update(id, ruleName);
                 logger.info("Updated rule name: " + id);
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update rule name id={id} :" + exception.getMessage());
@@ -84,7 +84,7 @@ public class RuleNameController {
     @GetMapping("/ruleName/delete/{id}")
     public String deleteRuleName(@PathVariable("id") Integer id, Model model) {
         try {
-            ruleNameService.deleteRuleName(id);
+            ruleNameService.delete(id);
         } catch (EntityNotFoundException e) {
             logger.error("Failed to delete rule name with id: " + id + ". Rule name not found in database");
         }

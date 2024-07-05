@@ -10,27 +10,27 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TradeService implements ITradeService {
+public class TradeService implements ICrudService<Trade> {
     @Autowired
     private TradeRepository repository;
 
     @Override
-    public List<Trade> getAllTrades() {
+    public List<Trade> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public Trade saveTrade(Trade trade) {
+    public Trade save(Trade trade) {
         return repository.save(trade);
     }
 
     @Override
-    public Optional<Trade> getTradeById(int id) {
+    public Optional<Trade> getById(int id) {
         return repository.findById(id);
     }
 
     @Override
-    public Trade updateTrade(int id, Trade newTrade) {
+    public Trade update(int id, Trade newTrade) {
         return repository.findById(id).map(trade -> {
                     trade.setAccount(newTrade.getAccount());
                     trade.setType(newTrade.getType());
@@ -41,7 +41,7 @@ public class TradeService implements ITradeService {
     }
 
     @Override
-    public void deleteTrade(int id) {
+    public void delete(int id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
         } else {

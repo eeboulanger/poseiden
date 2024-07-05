@@ -47,7 +47,7 @@ public class UserControllerTest {
 
     @Test
     public void homeTest() throws Exception {
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getAll()).thenReturn(List.of(user));
         mockMvc.perform(get("/user/list")
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -63,7 +63,7 @@ public class UserControllerTest {
                         )
                 )));
 
-        verify(userService, times(1)).getAllUsers();
+        verify(userService, times(1)).getAll();
     }
 
     @Test
@@ -77,7 +77,7 @@ public class UserControllerTest {
 
     @Test
     public void validateTest() throws Exception {
-        when((userService.createUser(ArgumentMatchers.any(UserDTO.class)))).thenReturn(new User());
+        when((userService.saveWithDto(ArgumentMatchers.any(UserDTO.class)))).thenReturn(new User());
         mockMvc.perform(post("/user/validate")
                         .with(csrf())
                         .param("username", "Jane")
@@ -88,7 +88,7 @@ public class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/list"));
 
-        verify(userService, times(1)).createUser(ArgumentMatchers.any(UserDTO.class));
+        verify(userService, times(1)).saveWithDto(ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -105,13 +105,13 @@ public class UserControllerTest {
                 .andExpect(model().errorCount(6))//Not blank, password not valid size, password not valid  pattern
                 .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"));
 
-        verify(userService, never()).createUser(ArgumentMatchers.any(UserDTO.class));
+        verify(userService, never()).saveWithDto(ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
     @DisplayName("Given there's a user with the id, then add to model")
     public void updateUserTest() throws Exception {
-        when(userService.getUserById(1)).thenReturn(Optional.of(user));
+        when(userService.getById(1)).thenReturn(Optional.of(user));
 
         mockMvc.perform(get("/user/update/{id}", 1)
                         .with(csrf()))
@@ -124,20 +124,20 @@ public class UserControllerTest {
                 .andExpect(model().attribute("userDTO", hasProperty("role", is(user.getRole()))));
 
 
-        verify(userService, times(1)).getUserById(1);
+        verify(userService, times(1)).getById(1);
     }
 
     @Test
     @DisplayName("Given there's no user with the id, then don't add  to model")
     public void givenNoUserWithId_whenUpdate_thenDontAddToModel() throws Exception {
-        when(userService.getUserById(1)).thenReturn(Optional.empty());
+        when(userService.getById(1)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/user/update/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/user/list"));
 
-        verify(userService, times(1)).getUserById(1);
+        verify(userService, times(1)).getById(1);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class UserControllerTest {
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/user/list"));
-        verify(userService, times(1)).updateUser(eq(1), ArgumentMatchers.any(UserDTO.class));
+        verify(userService, times(1)).updateWithDto(eq(1), ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class UserControllerTest {
                 .andExpect(model().attributeHasFieldErrors("userDTO", "username", "password", "fullname", "role"))
                 .andExpect(view().name("/user/update"));
 
-        verify(userService, never()).updateUser(eq(1), ArgumentMatchers.any(UserDTO.class));
+        verify(userService, never()).updateWithDto(eq(1), ArgumentMatchers.any(UserDTO.class));
     }
 
     @Test
@@ -183,13 +183,13 @@ public class UserControllerTest {
     @Test
     @DisplayName("Given there's no user with the id, then redirect to list")
     public void deleteUserFailsTest() throws Exception {
-        doThrow(new EntityNotFoundException()).when(userService).deleteUser(1);
+        doThrow(new EntityNotFoundException()).when(userService).delete(1);
 
         mockMvc.perform(get("/user/delete/{id}", 1)
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/user/list"));
 
-        verify(userService, times(1)).deleteUser(1);
+        verify(userService, times(1)).delete(1);
     }
 }

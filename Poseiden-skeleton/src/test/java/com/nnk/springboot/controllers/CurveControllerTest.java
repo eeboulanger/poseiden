@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.CurvePoint;
-import com.nnk.springboot.services.ICurvePointService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,13 +28,13 @@ public class CurveControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private ICurvePointService curvePointService;
+    private ICrudService<CurvePoint> curvePointService;
     @InjectMocks
     private CurveController controller;
 
     @Test
     public void homeTest() throws Exception {
-        when(curvePointService.getAllCurvePoints()).thenReturn(List.of(new CurvePoint((byte) 1, 20d, 20d)));
+        when(curvePointService.getAll()).thenReturn(List.of(new CurvePoint((byte) 1, 20d, 20d)));
         mockMvc.perform(get("/curvePoint/list")
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -42,7 +42,7 @@ public class CurveControllerTest {
                 .andExpect(model().attributeExists("curvePoints"))
                 .andExpect(model().attribute("curvePoints", hasSize(1)));
 
-        verify(curvePointService, times(1)).getAllCurvePoints();
+        verify(curvePointService, times(1)).getAll();
     }
 
     @Test
@@ -57,7 +57,7 @@ public class CurveControllerTest {
     @Test
     @DisplayName("Given fields are valid, then save curvepoint to database and return add view")
     public void validateAddCurvePointTest() throws Exception {
-        when(curvePointService.saveCurvePoint(ArgumentMatchers.any(CurvePoint.class))).thenReturn(new CurvePoint());
+        when(curvePointService.save(ArgumentMatchers.any(CurvePoint.class))).thenReturn(new CurvePoint());
 
         mockMvc.perform(post("/curvePoint/validate")
                         .param("CurveId", "10")
@@ -69,7 +69,7 @@ public class CurveControllerTest {
                 .andExpect(redirectedUrl("/curvePoint/list"));
 
 
-        verify(curvePointService, times(1)).saveCurvePoint(ArgumentMatchers.any(CurvePoint.class));
+        verify(curvePointService, times(1)).save(ArgumentMatchers.any(CurvePoint.class));
     }
 
     @Test
@@ -84,14 +84,14 @@ public class CurveControllerTest {
                 .andExpect(view().name("curvePoint/add"))
                 .andExpect(model().attributeHasFieldErrors("curvePoint", "curveId"));
 
-        verify(curvePointService, never()).saveCurvePoint(ArgumentMatchers.any(CurvePoint.class));
+        verify(curvePointService, never()).save(ArgumentMatchers.any(CurvePoint.class));
     }
 
     @Test
     @DisplayName("Given there is a curve point with the id, then show in template")
     public void showUpdateFormTest() throws Exception {
         CurvePoint curvePoint = new CurvePoint((byte) 10, 15d, 12d);
-        when(curvePointService.getCurvePointById(1)).thenReturn(Optional.of(curvePoint));
+        when(curvePointService.getById(1)).thenReturn(Optional.of(curvePoint));
 
         mockMvc.perform(get("/curvePoint/update/{id}", 1)
                         .with(csrf()))
@@ -114,7 +114,7 @@ public class CurveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/curvePoint/list"));
 
-        verify(curvePointService, times(1)).updateCurvePoint(eq(1), ArgumentMatchers.any(CurvePoint.class));
+        verify(curvePointService, times(1)).update(eq(1), ArgumentMatchers.any(CurvePoint.class));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class CurveControllerTest {
                 .andExpect(view().name("/curvePoint/update"))
                 .andExpect(model().attributeHasFieldErrors("curvePoint", "curveId"));
 
-        verify(curvePointService, never()).updateCurvePoint(eq(1), ArgumentMatchers.any(CurvePoint.class));
+        verify(curvePointService, never()).update(eq(1), ArgumentMatchers.any(CurvePoint.class));
     }
 
     @Test
@@ -140,13 +140,13 @@ public class CurveControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/curvePoint/list"));
 
-        verify(curvePointService, times(1)).deleteCurvePoint(1);
+        verify(curvePointService, times(1)).delete(1);
     }
 
     @Test
     @DisplayName("Given curve point id doesn't exists, then don't delete and redirect to list")
     public void deleteCurvePointFailsTest() throws Exception {
-        doThrow(new EntityNotFoundException()).when(curvePointService).deleteCurvePoint(1);
+        doThrow(new EntityNotFoundException()).when(curvePointService).delete(1);
 
         mockMvc.perform(get("/curvePoint/delete/{id}", 1)
                         .with(csrf()))

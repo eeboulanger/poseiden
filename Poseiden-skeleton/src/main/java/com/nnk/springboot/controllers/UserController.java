@@ -2,6 +2,7 @@ package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.User;
 import com.nnk.springboot.dto.UserDTO;
+import com.nnk.springboot.services.ICrudService;
 import com.nnk.springboot.services.IUserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -24,7 +25,7 @@ public class UserController {
 
     @RequestMapping("/user/list")
     public String home(Model model) {
-        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("users", userService.getAll());
         return "user/list";
     }
 
@@ -41,7 +42,7 @@ public class UserController {
             return "user/add";
         } else {
             try {
-                User savedUser = userService.createUser(user);
+                User savedUser = userService.saveWithDto(user);
                 logger.info("User saved successfully: " + savedUser.getId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new User: " + exception.getMessage());
@@ -52,7 +53,7 @@ public class UserController {
 
     @GetMapping("/user/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<User> optional = userService.getUserById(id);
+        Optional<User> optional = userService.getById(id);
         if (optional.isEmpty()) {
             logger.error("No user found with id: " + id);
             return "redirect:/user/list";
@@ -74,7 +75,7 @@ public class UserController {
             return "/user/update";
         } else {
             try {
-                userService.updateUser(id, user);
+                userService.updateWithDto(id, user);
                 logger.info("Updated user: " + id);
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update user id={id} :" + exception.getMessage());
@@ -86,7 +87,7 @@ public class UserController {
     @GetMapping("/user/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id, Model model) {
         try {
-            userService.deleteUser(id);
+            userService.delete(id);
         } catch (EntityNotFoundException e) {
             logger.error("Failed to delete user with id: " + id + ". User not found in database");
         }

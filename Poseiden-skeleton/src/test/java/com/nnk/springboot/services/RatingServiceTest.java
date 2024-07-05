@@ -36,7 +36,7 @@ public class RatingServiceTest {
         List<Rating> list = List.of(rating);
         when(ratingRepository.findAll()).thenReturn(list);
 
-        List<Rating> result = ratingService.getAllRatings();
+        List<Rating> result = ratingService.getAll();
 
         assertEquals(rating.getId(), result.get(0).getId());
         verify(ratingRepository, times(1)).findAll();
@@ -46,7 +46,7 @@ public class RatingServiceTest {
     public void createRatingTest() {
         when(ratingRepository.save(rating)).thenReturn(rating);
 
-        Rating result = ratingService.createRating(rating);
+        Rating result = ratingService.save(rating);
 
         assertEquals(rating.getId(), result.getId());
         verify(ratingRepository, times(1)).save(rating);
@@ -56,7 +56,7 @@ public class RatingServiceTest {
     public void getRatingByIdTest() {
         when(ratingRepository.findById(1)).thenReturn(Optional.of(rating));
 
-        Optional<Rating> result = ratingService.getRatingById(1);
+        Optional<Rating> result = ratingService.getById(1);
 
         assertTrue(result.isPresent());
         assertEquals(rating.getId(), result.get().getId());
@@ -69,7 +69,7 @@ public class RatingServiceTest {
         when(ratingRepository.findById(1)).thenReturn(Optional.ofNullable(rating));
         when(ratingRepository.save(any(Rating.class))).thenReturn(rating);
 
-        Rating result = ratingService.updateRating(1, dto);
+        Rating result = ratingService.update(1, dto);
 
         assertNotNull(result);
         assertEquals(dto.getMoodysRating(), result.getMoodysRating());
@@ -85,7 +85,7 @@ public class RatingServiceTest {
     public void updateRatingFailsTest() {
         when(ratingRepository.findById(1)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> ratingService.updateRating(1, rating));
+        assertThrows(EntityNotFoundException.class, () -> ratingService.update(1, rating));
         verify(ratingRepository, never()).save(any(Rating.class));
     }
 
@@ -93,7 +93,7 @@ public class RatingServiceTest {
     public void deleteRatingSuccessTest() {
         when(ratingRepository.existsById(1)).thenReturn(true);
 
-        ratingService.deleteRating(1);
+        ratingService.delete(1);
 
         verify(ratingRepository, times(1)).existsById(1);
         verify(ratingRepository, times(1)).deleteById(1);
@@ -104,7 +104,7 @@ public class RatingServiceTest {
     public void deleteRatingFailsTest() {
         when(ratingRepository.existsById(1)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> ratingService.deleteRating(1));
+        assertThrows(EntityNotFoundException.class, () -> ratingService.delete(1));
 
         verify(ratingRepository, never()).deleteById(1);
     }

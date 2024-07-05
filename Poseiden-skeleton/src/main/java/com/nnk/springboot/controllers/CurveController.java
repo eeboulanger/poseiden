@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.CurvePoint;
-import com.nnk.springboot.services.ICurvePointService;
+import com.nnk.springboot.services.ICrudService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,14 +21,14 @@ public class CurveController {
 
     private final Logger logger = LoggerFactory.getLogger(CurveController.class);
     @Autowired
-    private ICurvePointService curveService;
+    private ICrudService<CurvePoint> curveService;
 
     @RequestMapping("/curvePoint/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
-        model.addAttribute("curvePoints", curveService.getAllCurvePoints());
+        model.addAttribute("curvePoints", curveService.getAll());
         return "curvePoint/list";
     }
 
@@ -44,7 +44,7 @@ public class CurveController {
             return "curvePoint/add";
         } else {
             try {
-                CurvePoint savedCurvePoint = curveService.saveCurvePoint(curvePoint);
+                CurvePoint savedCurvePoint = curveService.save(curvePoint);
                 logger.info("Saving new curve point: " + savedCurvePoint.getCurveId());
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to save new curve point: " + exception.getMessage());
@@ -55,7 +55,7 @@ public class CurveController {
 
     @GetMapping("/curvePoint/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        Optional<CurvePoint> optional = curveService.getCurvePointById(id);
+        Optional<CurvePoint> optional = curveService.getById(id);
         if (optional.isEmpty()) {
             logger.error("No curve point found with id: " + id);
             return "redirect:/curvePoint/list";
@@ -73,7 +73,7 @@ public class CurveController {
             return "/curvePoint/update";
         } else {
             try {
-                curveService.updateCurvePoint(id, curvePoint);
+                curveService.update(id, curvePoint);
                 logger.info("Updated curve point: " + id);
             } catch (EntityNotFoundException exception) {
                 logger.error("Failed to update curve point id={id} :" + exception.getMessage());
@@ -85,7 +85,7 @@ public class CurveController {
     @GetMapping("/curvePoint/delete/{id}")
     public String deleteCurvePoint(@PathVariable("id") Integer id, Model model) {
         try {
-            curveService.deleteCurvePoint(id);
+            curveService.delete(id);
             logger.info("Deleted Curve point id: " + id);
         } catch (EntityNotFoundException exception) {
             logger.error("Failed to delete curve point id: " + id + " " + exception.getMessage());

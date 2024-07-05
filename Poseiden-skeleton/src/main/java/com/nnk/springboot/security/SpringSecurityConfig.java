@@ -21,10 +21,13 @@ public class SpringSecurityConfig {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Filter requests. Authentication is mandatory for accessing the app. Using a customized login, logout, and access denied page
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/app/error", "/css/bootstrap.min.css").permitAll()
+                        .requestMatchers("/", "/css/bootstrap.min.css").permitAll()
                         .anyRequest().authenticated())
                 .formLogin((form) -> form
                         .loginPage("/app/login")

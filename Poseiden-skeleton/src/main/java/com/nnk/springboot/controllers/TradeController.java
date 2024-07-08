@@ -17,42 +17,35 @@ import java.util.Optional;
 
 
 @Controller
-public class TradeController {
+@RequestMapping("/trade")
+public class TradeController implements ICrudController<Trade> {
     private final Logger logger = LoggerFactory.getLogger(TradeController.class);
     @Autowired
     private ICrudService<Trade> service;
 
-    @RequestMapping("/trade/list")
     public String home(Model model, Principal principal) {
-        if(principal!=null) {
+        if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
         model.addAttribute("trades", service.getAll());
         return "trade/list";
     }
 
-    @GetMapping("/trade/add")
-    public String addUser(Trade bid) {
+    public String addForm(Trade trade) {
         return "trade/add";
     }
 
-    @PostMapping("/trade/validate")
     public String validate(@Valid Trade trade, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Trade has field errors: " + result.getAllErrors());
             return "trade/add";
         } else {
-            try {
-                Trade savedTrade = service.save(trade);
-                logger.info("Trade saved successfully: " + savedTrade.getTradeId());
-            } catch (EntityNotFoundException exception) {
-                logger.error("Failed to save new Trade: " + exception.getMessage());
-            }
+            Trade savedTrade = service.save(trade);
+            logger.info("Trade saved successfully: " + savedTrade.getTradeId());
+            return "redirect:/trade/list";
         }
-        return "redirect:/trade/list";
     }
 
-    @GetMapping("/trade/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<Trade> optional = service.getById(id);
         if (optional.isEmpty()) {
@@ -64,9 +57,8 @@ public class TradeController {
         }
     }
 
-    @PostMapping("/trade/update/{id}")
-    public String updateTrade(@PathVariable("id") Integer id, @Valid Trade trade,
-                              BindingResult result, Model model) {
+    public String update(@PathVariable("id") Integer id, @Valid Trade trade,
+                         BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
             return "/trade/update";
@@ -81,8 +73,7 @@ public class TradeController {
         return "redirect:/trade/list";
     }
 
-    @GetMapping("/trade/delete/{id}")
-    public String deleteTrade(@PathVariable("id") Integer id, Model model) {
+    public String delete(@PathVariable("id") Integer id, Model model) {
         try {
             service.delete(id);
         } catch (EntityNotFoundException e) {

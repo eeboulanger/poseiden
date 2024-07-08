@@ -17,12 +17,12 @@ import java.util.Optional;
 
 
 @Controller
-public class RuleNameController {
+@RequestMapping("/ruleName")
+public class RuleNameController implements ICrudController<RuleName> {
     private final Logger logger = LoggerFactory.getLogger(RuleNameController.class);
     @Autowired
     private ICrudService<RuleName> ruleNameService;
 
-    @RequestMapping("/ruleName/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
@@ -31,28 +31,21 @@ public class RuleNameController {
         return "ruleName/list";
     }
 
-    @GetMapping("/ruleName/add")
-    public String addRuleForm(RuleName bid) {
+    public String addForm(RuleName bid) {
         return "ruleName/add";
     }
 
-    @PostMapping("/ruleName/validate")
     public String validate(@Valid RuleName ruleName, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Rule name has field errors: " + result.getAllErrors());
             return "ruleName/add";
         } else {
-            try {
-                RuleName rule = ruleNameService.save(ruleName);
-                logger.info("Rule name saved successfully: " + rule.getId());
-            } catch (EntityNotFoundException exception) {
-                logger.error("Failed to save new rule name: " + exception.getMessage());
-            }
+            RuleName rule = ruleNameService.save(ruleName);
+            logger.info("Rule name saved successfully: " + rule.getId());
+            return "redirect:/ruleName/list";
         }
-        return "redirect:/ruleName/list";
     }
 
-    @GetMapping("/ruleName/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<RuleName> optional = ruleNameService.getById(id);
         if (optional.isEmpty()) {
@@ -64,9 +57,8 @@ public class RuleNameController {
         }
     }
 
-    @PostMapping("/ruleName/update/{id}")
-    public String updateRuleName(@PathVariable("id") Integer id, @Valid RuleName ruleName,
-                                 BindingResult result, Model model) {
+    public String update(@PathVariable("id") Integer id, @Valid RuleName ruleName,
+                         BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
             return "/ruleName/update";
@@ -81,8 +73,7 @@ public class RuleNameController {
         return "redirect:/ruleName/list";
     }
 
-    @GetMapping("/ruleName/delete/{id}")
-    public String deleteRuleName(@PathVariable("id") Integer id, Model model) {
+    public String delete(@PathVariable("id") Integer id, Model model) {
         try {
             ruleNameService.delete(id);
         } catch (EntityNotFoundException e) {

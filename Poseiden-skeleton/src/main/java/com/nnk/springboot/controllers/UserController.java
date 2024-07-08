@@ -15,30 +15,28 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
 @Controller
 @RequestMapping("/user")
 @PreAuthorize("hasRole('ADMIN')")
-public class UserController {
+public class UserController implements ICrudController<UserDTO> {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private IUserService userService;
 
-    @RequestMapping("/list")
-    public String home(Model model) {
+    public String home(Model model, Principal principal) {
         model.addAttribute("users", userService.getAll());
         return "user/list";
     }
 
 
-    @GetMapping("/add")
-    public String addUser(UserDTO userDTO) {
+    public String addForm(UserDTO userDTO) {
         return "user/add";
     }
 
-    @PostMapping("/validate")
     public String validate(@Valid UserDTO user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("User has field errors: " + result.getAllErrors());
@@ -56,7 +54,6 @@ public class UserController {
         return "redirect:/user/list";
     }
 
-    @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<User> optional = userService.getById(id);
         if (optional.isEmpty()) {
@@ -71,9 +68,8 @@ public class UserController {
         }
     }
 
-    @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") Integer id, @Valid UserDTO user,
-                             BindingResult result, Model model) {
+    public String update(@PathVariable("id") Integer id, @Valid UserDTO user,
+                         BindingResult result, Model model) {
 
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
@@ -91,8 +87,7 @@ public class UserController {
         return "redirect:/user/list";
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Integer id) {
+    public String delete(@PathVariable("id") Integer id, Model model) {
         try {
             userService.delete(id);
         } catch (EntityNotFoundException e) {

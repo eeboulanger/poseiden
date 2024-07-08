@@ -17,13 +17,13 @@ import java.util.Optional;
 
 
 @Controller
-public class RatingController {
+@RequestMapping("/rating")
+public class RatingController implements ICrudController<Rating> {
     private final Logger logger = LoggerFactory.getLogger(RatingController.class);
 
     @Autowired
     private ICrudService<Rating> ratingService;
 
-    @RequestMapping("/rating/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
@@ -32,28 +32,21 @@ public class RatingController {
         return "rating/list";
     }
 
-    @GetMapping("/rating/add")
-    public String addRatingForm(Rating rating) {
+    public String addForm(Rating rating) {
         return "rating/add";
     }
 
-    @PostMapping("/rating/validate")
     public String validate(@Valid Rating rating, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
             return "/rating/add";
         } else {
-            try {
-                Rating savedRating = ratingService.save(rating);
-                logger.info("Saving new curve point: " + savedRating.getId());
-            } catch (EntityNotFoundException exception) {
-                logger.error("Failed to save new rating: " + exception.getMessage());
-            }
+            Rating savedRating = ratingService.save(rating);
+            logger.info("Saving new curve point: " + savedRating.getId());
+            return "redirect:/rating/list";
         }
-        return "redirect:/rating/list";
     }
 
-    @GetMapping("/rating/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<Rating> optional = ratingService.getById(id);
         if (optional.isEmpty()) {
@@ -65,9 +58,8 @@ public class RatingController {
         }
     }
 
-    @PostMapping("/rating/update/{id}")
-    public String updateRating(@PathVariable("id") Integer id, @Valid Rating rating,
-                               BindingResult result, Model model) {
+    public String update(@PathVariable("id") Integer id, @Valid Rating rating,
+                         BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
             return "/rating/update";
@@ -82,8 +74,7 @@ public class RatingController {
         return "redirect:/rating/list";
     }
 
-    @GetMapping("/rating/delete/{id}")
-    public String deleteRating(@PathVariable("id") Integer id, Model model) {
+    public String delete(@PathVariable("id") Integer id, Model model) {
         try {
             ratingService.delete(id);
             logger.info("Deleted rating with id: {id}");

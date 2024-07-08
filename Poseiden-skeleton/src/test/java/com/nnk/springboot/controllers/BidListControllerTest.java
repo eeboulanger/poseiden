@@ -159,7 +159,7 @@ public class BidListControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().errorCount(4)) //Not blank, not Empty
                 .andExpect(model().attributeHasFieldErrors("bidList", "account", "type"))
-                .andExpect(view().name("/bidList/update"));
+                .andExpect(view().name("bidList/update"));
 
         verify(bidService, never()).update(eq(1), ArgumentMatchers.any(BidList.class));
     }

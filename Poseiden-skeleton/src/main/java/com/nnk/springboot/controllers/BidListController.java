@@ -17,13 +17,13 @@ import java.util.Optional;
 
 
 @Controller
-public class BidListController {
+@RequestMapping("/bidList")
+public class BidListController implements ICrudController<BidList> {
     private final Logger logger = LoggerFactory.getLogger(BidListController.class);
 
     @Autowired
     private ICrudService<BidList> bidService;
 
-    @RequestMapping("/bidList/list")
     public String home(Model model, Principal principal) {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
@@ -32,28 +32,21 @@ public class BidListController {
         return "bidList/list";
     }
 
-    @GetMapping("/bidList/add")
-    public String addBidForm(BidList bid) {
+    public String addForm(BidList bid) {
         return "bidList/add";
     }
 
-    @PostMapping("/bidList/validate")
     public String validate(@Valid BidList bid, BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Bid has field errors: " + result.getAllErrors());
             return "bidList/add";
         } else {
-            try {
-                BidList savedBid = (BidList) bidService.save(bid);
-                logger.info("Bid saved successfully: " + savedBid.getId());
-            } catch (EntityNotFoundException exception) {
-                logger.error("Failed to save new bid: " + exception.getMessage());
-            }
+            BidList savedBid = bidService.save(bid);
+            logger.info("Bid saved successfully: " + savedBid.getId());
+            return "redirect:/bidList/list";
         }
-        return "redirect:/bidList/list";
     }
 
-    @GetMapping("/bidList/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Optional<BidList> optional = bidService.getById(id);
         if (optional.isEmpty()) {
@@ -65,12 +58,11 @@ public class BidListController {
         }
     }
 
-    @PostMapping("/bidList/update/{id}")
-    public String updateBid(@PathVariable("id") Integer id, @Valid BidList bidList,
-                            BindingResult result, Model model) {
+    public String update(@PathVariable("id") Integer id, @Valid BidList bidList,
+                         BindingResult result, Model model) {
         if (result.hasErrors()) {
             logger.error("Fields have errors: " + result.getAllErrors());
-            return "/bidList/update";
+            return "bidList/update";
         } else {
             try {
                 bidService.update(id, bidList);
@@ -82,8 +74,7 @@ public class BidListController {
         return "redirect:/bidList/list";
     }
 
-    @GetMapping("/bidList/delete/{id}")
-    public String deleteBid(@PathVariable("id") Integer id, Model model) {
+    public String delete(@PathVariable("id") Integer id, Model model) {
         try {
             bidService.delete(id);
         } catch (EntityNotFoundException e) {
